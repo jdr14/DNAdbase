@@ -1,11 +1,13 @@
+public class DNAdbase 
+{
 
-public class DNAdbase {
-
-	public DNAdbase() {
+	public DNAdbase() 
+	{
 		// TODO Auto-generated constructor stub
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) 
+	{
 		// TODO Auto-generated method stub
 
 	}
