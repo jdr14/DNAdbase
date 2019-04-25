@@ -31,33 +31,5 @@ public class MemoryManager
 		        + e.getMessage());
 		}
 	}
-	
-	/**
-	 * 
-	 * @param sequence of type string
-	 * @throws IOException
-	 */
-	public void fileInsert(String sequence) throws IOException
-	{
-		// get current hash file location
-		long currentPointer = hashFile.getFilePointer();
-		
-		// write string to hash file as bytes
-		hashFile.write(sequence.getBytes());
-	}
-	
-	/**
-	 * 
-	 * @param seqPosition
-	 * @throws IOException
-	 */
-	public void fileRemove(long seqPosition) throws IOException
-	{
-		// move file pointer to position of sequence to be deleted
-		hashFile.seek(seqPosition);
-		
-		// delete sequence
-		
-	}
-    
+	    
 }
