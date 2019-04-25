@@ -3,6 +3,14 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
+/**
+ * Creates the hash (binary) file to store the sequences of different lengths
+ * Also manages the hash table as an array of pointers to each sequence
+ * stored on the hash file (on disk)
+ * @author Joey Rodgers jdr14
+ * @author Jovany Cabrera jovanyc4
+ * @version 1.0.0
+ */
 public class HashFile {
 
 	/**
