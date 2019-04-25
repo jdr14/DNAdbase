@@ -6,17 +6,12 @@ import java.util.Scanner;
 /**
  * Extends abstract class Parse and provides parsing functionality 
  * specific to the tasks outlined by the DNAdbase project (project 4)
- * @author Joey Rodgers jdr14
- * @author Jovany Cabrera jovanyc4
+ * @author Joey Rodgers: jdr14
+ * @author Jovany Cabrera: jovanyc4
  * @version 1.0.0
  */
 public class DnaParse extends Parse
 {
-	/**
-	 * Name of the hash file (binary) which will be storing the sequences as
-	 * binary data
-	 */
-	private String hashFileName;
 	
     /**
      * Constructor which calls parent (Parse) constructor internally
@@ -25,7 +20,7 @@ public class DnaParse extends Parse
 	public DnaParse(String commandFileName, String hashFileArg) 
 	{
 		super(commandFileName);
-		hashFileName = hashFileArg;
+		MemoryManager mem
 	}
 
 	public Boolean parseMain()
