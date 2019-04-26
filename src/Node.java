@@ -17,7 +17,7 @@ public class Node<T>
     /**
      * 
      */
-    private Node next;
+    private Node<T> next;
     
     /**
      * Default constructor
@@ -37,13 +37,19 @@ public class Node<T>
 		item = anItem;
 		next = null;
 	}
+	
+	public Node(Node<T> copy)
+	{
+		item = copy.item();
+		next = copy.next();
+	}
     
 	/**
 	 * Constructor to set 
 	 * @param anItem
 	 * @param n
 	 */
-	public Node(T anItem, Node n)
+	public Node(T anItem, Node<T> n)
 	{
 		item = anItem;
 		next = n;
@@ -71,7 +77,7 @@ public class Node<T>
 	 * Next node in the linked list
 	 * @return next (Child of current node)
 	 */
-	public Node next()
+	public Node<T> next()
 	{
 		return next;
 	}
@@ -80,7 +86,7 @@ public class Node<T>
 	 * Next node in the linked list
 	 * @param n as the next node in the sequence
 	 */
-	void setNext(Node n)
+	void setNext(Node<T> n)
 	{
 		next = n;
 	}

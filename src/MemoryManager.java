@@ -13,7 +13,15 @@ public class MemoryManager
 	 * Create nodes to track the head, tail, and the current node
 	 */
     private Node<Pair<Long, Long>> head;
+    
+    /**
+     * Current to tack the current node
+     */
     private Node<Pair<Long, Long>> curr;
+    
+    /**
+     * 
+     */
     private Node<Pair<Long, Long>> tail;
     
     /**
@@ -21,14 +29,66 @@ public class MemoryManager
      */
     private long listSize;
     
-	public MemoryManager() 
+    /**
+     * File which the memory manager will be tracking
+     */
+    private RandomAccessFile memFile;
+    
+    /**
+     * Constructor creates 
+     * @param hashFileName
+     */
+	public MemoryManager(String memoryFileName) 
 	{
         // Each pair should have the length of sequence as well 
 		// as the pointer to the actual sequence on file as well
-    	
+		try
+		{
+			// File is the stream used to create the hash (binary) file...
+			memFile = new RandomAccessFile(new File(memoryFileName), "rw");
+		}
+		catch (FileNotFoundException e)
+		{
+			System.err.println("Error with creating the memory file " 
+		        + e.getMessage());
+		}
+	}
+	
+	/**
+	 * Hashing function to compute the index (slot) of the hash table where
+	 * the memory handles are to be stored.
+	 * @param s
+	 * @param M
+	 * @return slot index as a long
+	 */
+	private long sfold(String s, int M) 
+	{
+		int intLength = s.length() / 4;
+		long sum = 0;
+		for (int j = 0; j < intLength; j++) 
+		{
+		    char c[] = s.substring(j * 4, (j * 4) + 4).toCharArray();
+		    long mult = 1;
+		    for (int k = 0; k < c.length; k++) 
+		    {
+		        sum += c[k] * mult;
+		        mult *= 256;
+		    }
+		}
+
+		char c[] = s.substring(intLength * 4).toCharArray();
+	    long mult = 1;
+		for (int k = 0; k < c.length; k++) 
+		{
+            sum += c[k] * mult;
+	        mult *= 256;
+        }
+
+		sum = (sum * sum) >> 8;
+		return(Math.abs(sum) % M);
 	}
 
-    // Remove all elements
+    // Remove all elements and reset the linked list
     public void clear() 
     {
         curr = tail = new Node(null); // Create trailer
@@ -36,8 +96,36 @@ public class MemoryManager
         listSize = 0;
     }
     
+	/**
+	 * 
+	 * @param sequence of type string
+	 * @throws IOException
+	 */
+	public void fileInsert(String sequence) throws IOException
+	{
+		// get current hash file location
+		long currentPointer = memFile.getFilePointer();
+		
+		// write string to hash file as bytes
+		memFile.write(sequence.getBytes());
+	}
+	
+	/**
+	 * 
+	 * @param seqPosition
+	 * @throws IOException
+	 */
+	public void fileRemove(long seqPosition) throws IOException
+	{
+		// move file pointer to position of sequence to be deleted
+		memFile.seek(seqPosition);
+		
+		// delete sequence
+		
+	}
+    
     // Insert "it" at current position
-    public boolean insert(Object it) 
+    public boolean insert(Node<Pair<Long, String>> it) 
     {
         curr.setNext(new Node(curr.item(), curr.next()));
         curr.setItem(it);
@@ -47,12 +135,13 @@ public class MemoryManager
     }
     
     // Append "it" to list
-    public boolean append(Object it) {
-      tail.setNext(new Link(null));
-      tail.setElement(it);
-      tail = tail.next();
-      listSize++;
-      return true;
+    private boolean append(Node<Pair<Long, Long>> memoryHandles) 
+    {
+        tail.setNext(new Node(null));
+        tail.setItem(it);
+        tail = tail.next();
+        listSize++;
+        return true;
     }
 
     // Remove and return current element

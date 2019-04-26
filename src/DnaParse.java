@@ -17,22 +17,23 @@ public class DnaParse extends Parse
      * Constructor which calls parent (Parse) constructor internally
      * @param fileName (file name of a file that exists passed in as a string)
      */
-	public DnaParse(String commandFileName, String hashFileArg) 
+	public DnaParse(String commandFileName, 
+			String hashFileArg, long hashTableSize, String memoryFileName) 
 	{
 		super(commandFileName);
-		MemoryManager mem
+		MemoryManager memManager = new MemoryManager();
 	}
 
 	public Boolean parseMain()
 	{
 		File commandFile = new File(this.getFileName());
 		
-        List<Pair<String, String>> parsedList = new ArrayList<>();
+        //List<Pair<String, String>> parsedList = new ArrayList<>();
         
         // Try/Catch block to account for case if file is not found
         try
         {
-            Scanner inFileStream = new Scanner(parseFile);
+            Scanner inFileStream = new Scanner(commandFile);
             
             // Iterate through the entire file
             while (inFileStream.hasNextLine())
@@ -44,13 +45,28 @@ public class DnaParse extends Parse
                 {
                     List<String> listedLine = lineAsList(currentLine);
                     
-                    if (listedLine.size() == 2)
+                    // Case insert
+                    if (listedLine.size() == 3)
                     {
-                        parsedList.add(new 
-                                Pair<String, String>(listedLine.get(0), 
-                                listedLine.get(1)));
+                        if (listedLine.get(0).equalsIgnoreCase("insert"))
+                        {
+                        	String seqId = listedLine.get(1);
+                        	
+                        	// Project 4 instructions specified not to worry 
+                        	// about accounting for syntax errors, so it is 
+                        	// safe to get the next line which is the sequence
+                        	long sequenceLength = 
+                        			Long.parseLong(listedLine.get(2));
+                            List<String> nextLineAsList = 
+                            		lineAsList(inFileStream.nextLine().trim());
+                        	String sequence = nextLineAsList.get(0); 
+                        	
+                        	// Offload work to helper method
+                        	handleInsert(seqId, sequence, sequenceLength);
+                        }
                     }
-                    else if (listedLine.size() == 1)
+                    // Case remove
+                    else if (listedLine.size() == 2)
                     {
                         parsedList.add(new 
                                 Pair<String, String>(listedLine.get(0), ""));
@@ -60,8 +76,6 @@ public class DnaParse extends Parse
             
             // Close the file stream
             inFileStream.close();
-            
-            return parsedList;
         }
         catch (FileNotFoundException err)
         {
@@ -70,5 +84,16 @@ public class DnaParse extends Parse
             err.printStackTrace();
         }
         return true;  // successful run of parse
-	}
+	}  // End Parse main
+	
+	/**
+	 * Handles the passing of 
+	 * @param seqId
+	 * @param seq
+	 * @param seqLength
+	 */
+    private void handleInsert(String seqId, String seq, long seqLength)
+    {
+    	
+    }
 }
