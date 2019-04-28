@@ -118,13 +118,13 @@ public class MemoryManager
 	 * @param sequence of type string
 	 * @throws IOException
 	 */
-	public void fileInsert(String sequence) throws IOException
+	public void writeToFile(String s) throws IOException
 	{
 		// get current hash file location
 		long currentPointer = memFile.getFilePointer();
 		
 		// write string to hash file as bytes
-		memFile.write(sequence.getBytes());
+		memFile.write(s.getBytes());
 	}
 	
 	/**
@@ -151,17 +151,33 @@ public class MemoryManager
     	if (listSize == 0)
     	{
     		// Get the pointer to file offset from the beginning (in bytes)
-    		long seqIdOffset = memFile.getFilePointer();
+    		long firstFilePointer = memFile.getFilePointer();
     		
-    		//
-    		if (seqIdOffset >= intMaxAsLong)
+    		// Check if the length after potential insertion of sequence ID
+    		// is within valid range of integer type
+    		if (firstFilePointer + seqId.getBytes().length > intMaxAsLong)
     		{
     			return false;
     		}
     		
     	    // First insert the sequence ID.  
+    		int seqIdOffset = (int)firstFilePointer;
+    		Pair<Integer, Integer> m1 = new Pair<Integer, Integer>(
+    				seqIdOffset, seqId.length());
     		
-    		Pair<Long, > m1 = new Pair();
+    		// Write the sequence ID to the file
+    		//writeToFile(seqId);
+    		
+    		long secondFilePointer = memFile.getFilePointer();
+    		
+    		// Check to see if the 2nd file pointer is longer than int max
+    		if (secondFilePointer > intMaxAsLong)
+    		{
+    			// Set back to where seqId 
+    			memFile.seek(firstFilePointer);
+    		}
+    		
+    		int seqOffset = (int)
     	}
     	else
     	{
@@ -193,7 +209,7 @@ public class MemoryManager
     private boolean append(Node<Pair<Long, Long>> memoryHandles) 
     {
         tail.setNext(new Node(null));
-        tail.setItem(it);
+        tail.setItem(memoryHandles);
         tail = tail.next();
         listSize++;
         return true;
@@ -221,7 +237,8 @@ public class MemoryManager
     public void moveToEnd() { curr = tail; }          // Set curr at list end
 
     // Move curr one step left; no change if now at front
-    public void prev() {
+    public void prev() 
+    {
       if (head.next() == curr) return; // No previous element
       Link temp = head;
       // March down list until we find the previous element
