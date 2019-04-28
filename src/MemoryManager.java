@@ -248,7 +248,10 @@ public class MemoryManager
     		}
     	}
     	
-    	// check if value is correct value
+    	// re-set the variables to correct values
+    	currHashPos = hashTable.get((int) hashPosition);
+    	seqIdPos = currHashPos.getKey().getKey();
+    	fromFile = getDataFromFile((long) seqIdPos);
     	
     	// if correct, add entries to linked list of free spaces
     	curr.setNext(new Node(currHashPos.getKey()));
@@ -264,7 +267,8 @@ public class MemoryManager
     	int seqPos = currHashPos.getValue().getKey();
     	String seqFromFile = getDataFromFile((long) seqPos);
     	System.out.println(seqFromFile);
-
+        
+    	// add another check for good coding style
     }
     
     /**
@@ -316,19 +320,38 @@ public class MemoryManager
         // check if sequence ID is same
     	String fromFile = getDataFromFile((long) seqIdPos);
     	
+    	
+    	// case where seqID does not match, need to find correct value
+    	if (!fromFile.equalsIgnoreCase(seqToSearch))
+    	{
+    		hashPosition = findCorrect(hashPosition, fromFile);
+    		
+    		// case where the sequence is not found in the bucket
+        	if (hashPosition == -1)
+        	{
+        		System.out.println("SequenceID " + seqToSearch + " not found");
+        		return;
+        	}
+    	}
+    	
+    	// reset the value of to correct value
+    	currHashPos = hashTable.get((int) hashPosition);
+    	
     	// case where correct seqID is found
     	// get seq offset and print string found
-    	if (fromFile.equalsIgnoreCase(seqToSearch))
-    	{
-    		int seqPos = currHashPos.getValue().getKey();
-        	String seqFromFile = getDataFromFile((long) seqPos);
-        	System.out.println("Sequence Found: " + seqFromFile);
-        	return;
-    	}
-    	// else have to find correct position
+    	int seqPos = currHashPos.getValue().getKey();
+    	String seqFromFile = getDataFromFile((long) seqPos);
+    	System.out.println("Sequence Found: " + seqFromFile);
     	
+    	// add another check for good coding style
     }
     
+    /**
+     * 
+     * @param oldPos
+     * @param seqNeeded
+     * @return
+     */
     private long findCorrect(long oldPos, String seqNeeded)
     {
     	boolean isFound = false;
