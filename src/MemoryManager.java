@@ -151,10 +151,10 @@ public class MemoryManager
 		
 	}
     
-//    // Insert "it" at current position
-//    public boolean insert(String seqId, String seq, long seqLength) 
+    // Insert "it" at current position
+    public boolean insert(String seqId, String seq, long seqLength) 
 //    		throws IOException
-//    {
+    {
 //    	// Case where listSize is empty means there are currently no empty
 //    	// spaces/slots in the file where seqId and/or seq could go
 //    	// Therefore, just insert at the end of the file.
@@ -196,8 +196,8 @@ public class MemoryManager
 //        if (tail == curr) tail = curr.next();  // New tail
 //        listSize++;
 //        */
-//    	return true;
-//    }
+    	return true;
+    }
     
     // Append "it" to list
     private boolean append(Node<Pair<Long, Long>> memoryHandles) 
@@ -215,26 +215,69 @@ public class MemoryManager
     	// get positioning using the sfold function
     	long hashPosition = sfold(seqToRemove, hashTableSize);
     	
-    	// get values at the position in hash table
-    	Pair<Pair<Integer, Integer>, Pair<Integer, Integer>> currPosition =
+    	// get pair at the position in hash table
+    	Pair<Pair<Integer, Integer>, Pair<Integer, Integer>> currHashPos =
     			hashTable.get((int) hashPosition);
     	
-    	// check if there is a value at that position
+    	// check if there is a pair at that position
+    	if (currHashPos == null)
+    	{
+    		// case where sfold returns empty position
+    		// sequence does not exist
+    		System.out.println("No sequence found using sequenceID: " + seqToRemove);
+    		return;
+    	}
     	
+    	// get position of seqID
+    	int seqIdPos = currHashPos.getKey().getKey();
+    	
+        // check if sequence ID is same
+    	String fromFile = getDataFromFile((long) seqIdPos);
+    	
+    	if (!fromFile.equalsIgnoreCase(seqToRemove))
+    	{
+    		// case where position given is incorrect position
+    		// check other possible positions (in bucket)
+    	}
     	
     	// check if value is correct value
     	
-    	// if correct, remove and add entries to list
+    	// if correct, add entries to linked list of free spaces
+    	curr.setNext(new Node(currHashPos.getKey()));
+    	curr = curr.next();
+    	curr.setNext(new Node(currHashPos.getValue()));
+    	listSize += 2;
     	
-    	// else find correct slot 
-        Pair<Long, Long> it = curr.item();  // Remember value
-        curr.setItem(curr.next().item());  // Pull forward the next element
-        if (curr.next() == tail) 
-        {
-    	    tail = curr;   // Removed last, move tail
-        }
-        curr.setNext(curr.next().next());       // Point around unneeded link
-        listSize--;                             // Decrement element count
+    	// if correct, remove entry from the hash table
+    	hashTable.set((int) hashPosition, null);
+    	
+    	// print out sequence
+    	System.out.println("Sequence Removed " + seqToRemove + ": ");
+    	int seqPos = currHashPos.getValue().getKey();
+    	String seqFromFile = getDataFromFile((long) seqPos);
+    	System.out.println(seqFromFile);
+
+    }
+    
+    /**
+     * 
+     * @param filePosition
+     */
+    private String getDataFromFile(long filePosition)
+    {
+    	String foundLine = "";
+    	try 
+    	{
+			memFile.seek(filePosition);
+			foundLine = memFile.readLine();
+			return foundLine;
+		} 
+    	catch (IOException e) 
+    	{
+			System.err.println("Error: " + e.getLocalizedMessage());
+		}
+    	return foundLine;
+    	
     }
 
     public void moveToStart() { curr = head.next(); } // Set curr at list start
