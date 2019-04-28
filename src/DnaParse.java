@@ -22,7 +22,7 @@ public class DnaParse extends Parse
 			String hashFileArg, long hashTableSize, String memoryFileName) 
 	{
 		super(commandFileName);
-		mManager = new MemoryManager(memoryFileName);
+		mManager = new MemoryManager(memoryFileName, hashTableSize);
 	}
 
 	public Boolean parseMain()
@@ -95,6 +95,6 @@ public class DnaParse extends Parse
     {
     	// Create the 
     	Pair<Long, String> m1 = 
-    			new Pair<Long, String>(seqIdLength, seqId);
+    			new Pair<Long, String>((long) seqId.length(), seqId);
     }
 }

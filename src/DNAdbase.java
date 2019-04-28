@@ -1,7 +1,5 @@
 public class DNAdbase 
 {
-	
-	private static int HashTableSize;
 
 	public DNAdbase() 
 	{

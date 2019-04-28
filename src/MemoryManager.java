@@ -1,4 +1,5 @@
 import java.io.*;
+import java.util.*;
 
 /**
  * Class to keep track of the empty spaces in the binary (hash file)
@@ -41,17 +42,23 @@ public class MemoryManager
     private long intMaxAsLong = (long)Integer.MAX_VALUE;
     
     /**
+     * size of hash table, used for calls to sfold
+     */
+    private int hashTableSize;
+    
+    /**
      * Private hashTable to track the memory handles
      * M1 should be the handle to sequence ID (offset and length)
      * M2 should be the handle to the actual sequence (offset and length)
      */
-    private Pair<Pair<Integer, Integer>, Pair<Integer, Integer>> hashTable;
+    private ArrayList<Pair<Pair<Integer, Integer>,
+        Pair<Integer, Integer>>> hashTable;
     
     /**
      * Constructor creates 
      * @param hashFileName
      */
-	public MemoryManager(String memoryFileName) 
+	public MemoryManager(String memoryFileName, long tableSize) 
 	{
         // Initialize the memory file for external disk storage
 		try
@@ -69,13 +76,16 @@ public class MemoryManager
 		listSize = 0;
 		curr = tail = new Node();
 		head = new Node();
+		hashTableSize = (int) tableSize;
+		hashTable = new ArrayList<Pair<Pair<Integer, Integer>,
+				Pair<Integer, Integer>>>(hashTableSize);
 	}
 	
 	/**
 	 * Hashing function to compute the index (slot) of the hash table where
 	 * the memory handles are to be stored.
-	 * @param s
-	 * @param M
+	 * @param s of type string, seqID to be placed/looked-up
+	 * @param M of type integer, size of the hash table
 	 * @return slot index as a long
 	 */
 	private long sfold(String s, int M) 
@@ -142,7 +152,7 @@ public class MemoryManager
 	}
     
     // Insert "it" at current position
-    public boolean insert(String seqId, String seq, long seqLength) 
+    public boolean insert(String seqId, String seq, int seqLength) 
     		throws IOException
     {
     	// Case where listSize is empty means there are currently no empty
@@ -162,22 +172,23 @@ public class MemoryManager
     		
     	    // First insert the sequence ID.  
     		int seqIdOffset = (int)firstFilePointer;
+    		
+    		// Create memory handle 1 containing seqID offset and length
     		Pair<Integer, Integer> m1 = new Pair<Integer, Integer>(
     				seqIdOffset, seqId.length());
     		
     		// Write the sequence ID to the file
-    		//writeToFile(seqId);
+    		writeToFile(seqId);
     		
-    		long secondFilePointer = memFile.getFilePointer();
+            // file pointer should be updated after writing the sequence bytes
+    		// to the memory file.  Convert 2nd file pointer to sequence offset
+    		int seqOffset = (int)memFile.getFilePointer();
     		
-    		// Check to see if the 2nd file pointer is longer than int max
-    		if (secondFilePointer > intMaxAsLong)
-    		{
-    			// Set back to where seqId 
-    			memFile.seek(firstFilePointer);
-    		}
+    		// Create memory handle 2 containing sequence offset and length
+    		Pair<Integer, Integer> m2 = new Pair<Integer, Integer>(
+    				seqOffset, seqLength);
     		
-    		int seqOffset = (int)
+    		
     	}
     	else
     	{
@@ -209,28 +220,121 @@ public class MemoryManager
     private boolean append(Node<Pair<Long, Long>> memoryHandles) 
     {
         tail.setNext(new Node(null));
-        tail.setItem(memoryHandles);
+        tail.setItem(memoryHandles.item());
         tail = tail.next();
         listSize++;
         return true;
     }
 
     // Remove and return current element
-    public Pair<Long, Long> remove () 
+    public void remove (String seqToRemove) 
     {
-        if (curr == tail) 
-        {
-    	    return null;          // Nothing to remove
-        }
-        Pair<Long, Long> it = curr.item();  // Remember value
-        curr.setItem(curr.next().item());  // Pull forward the next element
-        if (curr.next() == tail) 
-        {
-    	    tail = curr;   // Removed last, move tail
-        }
-        curr.setNext(curr.next().next());       // Point around unneeded link
-        listSize--;                             // Decrement element count
-        return it;                              // Return value
+    	// get positioning using the sfold function
+    	long hashPosition = sfold(seqToRemove, hashTableSize);
+    	
+    	// get pair at the position in hash table
+    	Pair<Pair<Integer, Integer>, Pair<Integer, Integer>> currHashPos =
+    			hashTable.get((int) hashPosition);
+    	
+    	// check if there is a pair at that position
+    	if (currHashPos == null)
+    	{
+    		// case where sfold returns empty position
+    		// sequence does not exist
+    		System.out.println("No sequence found using sequenceID: " + seqToRemove);
+    		return;
+    	}
+    	
+    	// get position of seqID
+    	int seqIdPos = currHashPos.getKey().getKey();
+    	
+        // check if sequence ID is same
+    	String fromFile = getDataFromFile((long) seqIdPos);
+    	
+    	if (!fromFile.equalsIgnoreCase(seqToRemove))
+    	{
+    		// case where position given is incorrect position
+    		// check other possible positions (in bucket)
+    	}
+    	
+    	// check if value is correct value
+    	
+    	// if correct, add entries to linked list of free spaces
+    	curr.setNext(new Node(currHashPos.getKey()));
+    	curr = curr.next();
+    	curr.setNext(new Node(currHashPos.getValue()));
+    	listSize += 2;
+    	
+    	// if correct, remove entry from the hash table
+    	hashTable.set((int) hashPosition, null);
+    	
+    	// print out sequence
+    	System.out.println("Sequence Removed " + seqToRemove + ": ");
+    	int seqPos = currHashPos.getValue().getKey();
+    	String seqFromFile = getDataFromFile((long) seqPos);
+    	System.out.println(seqFromFile);
+
+    }
+    
+    /**
+     * 
+     * @param filePosition
+     */
+    private String getDataFromFile(long filePosition)
+    {
+    	String foundLine = "";
+    	try 
+    	{
+			memFile.seek(filePosition);
+			foundLine = memFile.readLine();
+			return foundLine;
+		} 
+    	catch (IOException e) 
+    	{
+			System.err.println("Error: " + e.getLocalizedMessage());
+		}
+    	return foundLine;
+    	
+    }
+    
+    /**
+     * 
+     * @param seqToSearch
+     */
+    public void search(String seqToSearch)
+    {
+    	// get positioning using the sfold function
+    	long hashPosition = sfold(seqToSearch, hashTableSize);
+    	
+    	// get pair at the position in hash table
+    	Pair<Pair<Integer, Integer>, Pair<Integer, Integer>> currHashPos =
+    			hashTable.get((int) hashPosition);
+    	
+    	// check if there is a pair at that position
+    	if (currHashPos == null)
+    	{
+    		// case where sfold returns empty position
+    		// sequence does not exist
+    		System.out.println("SequenceID " + seqToSearch + " not found");
+    		return;
+    	}
+    	
+    	// get position of seqID
+    	int seqIdPos = currHashPos.getKey().getKey();
+    	
+        // check if sequence ID is same
+    	String fromFile = getDataFromFile((long) seqIdPos);
+    	
+    	// case where correct seqID is found
+    	// get seq offset and print string found
+    	if (fromFile.equalsIgnoreCase(seqToSearch))
+    	{
+    		int seqPos = currHashPos.getValue().getKey();
+        	String seqFromFile = getDataFromFile((long) seqPos);
+        	System.out.println("Sequence Found: " + seqFromFile);
+        	return;
+    	}
+    	
     }
 
     public void moveToStart() { curr = head.next(); } // Set curr at list start
@@ -240,7 +344,7 @@ public class MemoryManager
     public void prev() 
     {
       if (head.next() == curr) return; // No previous element
-      Link temp = head;
+      Node<Pair<Long, Long>> temp = head;
       // March down list until we find the previous element
       while (temp.next() != curr) temp = temp.next();
       curr = temp;
@@ -259,7 +363,7 @@ public class MemoryManager
      * Return list length
      * @return length of the list as an integer
      */
-    public int length() 
+    public long length() 
     { 
     	return listSize; 
     } 
@@ -271,7 +375,7 @@ public class MemoryManager
      */
     public int currPos() 
     {
-        Node temp = head.next();
+        Node<Pair<Long, Long>> temp = head.next();
         int i;
         for (i=0; curr != temp; i++)
         {
