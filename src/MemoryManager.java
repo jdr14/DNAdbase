@@ -279,6 +279,46 @@ public class MemoryManager
     	return foundLine;
     	
     }
+    
+    /**
+     * 
+     * @param seqToSearch
+     */
+    public void search(String seqToSearch)
+    {
+    	// get positioning using the sfold function
+    	long hashPosition = sfold(seqToSearch, hashTableSize);
+    	
+    	// get pair at the position in hash table
+    	Pair<Pair<Integer, Integer>, Pair<Integer, Integer>> currHashPos =
+    			hashTable.get((int) hashPosition);
+    	
+    	// check if there is a pair at that position
+    	if (currHashPos == null)
+    	{
+    		// case where sfold returns empty position
+    		// sequence does not exist
+    		System.out.println("SequenceID " + seqToSearch + " not found");
+    		return;
+    	}
+    	
+    	// get position of seqID
+    	int seqIdPos = currHashPos.getKey().getKey();
+    	
+        // check if sequence ID is same
+    	String fromFile = getDataFromFile((long) seqIdPos);
+    	
+    	// case where correct seqID is found
+    	// get seq offset and print string found
+    	if (fromFile.equalsIgnoreCase(seqToSearch))
+    	{
+    		int seqPos = currHashPos.getValue().getKey();
+        	String seqFromFile = getDataFromFile((long) seqPos);
+        	System.out.println("Sequence Found: " + seqFromFile);
+        	return;
+    	}
+    	
+    }
 
     public void moveToStart() { curr = head.next(); } // Set curr at list start
     public void moveToEnd() { curr = tail; }          // Set curr at list end
