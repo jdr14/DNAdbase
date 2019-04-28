@@ -24,7 +24,12 @@ public class DnaParse extends Parse
 		super(commandFileName);
 		mManager = new MemoryManager(memoryFileName, hashTableSize);
 	}
-
+    
+	/**
+	 * Method to handle the parsing and functionality execution as read in by
+	 * the command file
+	 * @return true on success
+	 */
 	public Boolean parseMain()
 	{
 		File commandFile = new File(this.getFileName());
@@ -69,6 +74,16 @@ public class DnaParse extends Parse
                     {
                         //parsedList.add(new 
                           //      Pair<String, String>(listedLine.get(0), ""));
+                    }
+                    else if (listedLine.size() == 2 && 
+                    		listedLine.get(0).equalsIgnoreCase("search"))
+                    {
+                    	
+                    }
+                    else if (listedLine.size() == 1 && 
+                    		listedLine.get(0).equalsIgnoreCase("print"))
+                    {
+                    	
                     }
                 }
             }
