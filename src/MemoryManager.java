@@ -358,8 +358,6 @@ public class MemoryManager
     	start *= 32;
     	end *= 32;
     	
-    	
-    	
     	while(!isFound)
     	{
     		// check a new hash entry
