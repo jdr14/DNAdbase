@@ -251,10 +251,18 @@ public class MemoryManager
         // check if sequence ID is same
     	String fromFile = getDataFromFile((long) seqIdPos);
     	
+    	// if sequence does not match, search the rest of the bucket
     	if (!fromFile.equalsIgnoreCase(seqToRemove))
     	{
-    		// case where position given is incorrect position
-    		// check other possible positions (in bucket)
+    		// look for correct position in bucket
+    		hashPosition = findCorrect(seqIdPos, fromFile);
+    		
+    		// if enters this case, no entry in bucket matches
+    		if (hashPosition == -1)
+    		{
+    			System.out.println("No sequence found using sequenceID: " + seqToRemove);
+        		return;
+    		}
     	}
     	
     	// check if value is correct value
@@ -334,7 +342,68 @@ public class MemoryManager
         	System.out.println("Sequence Found: " + seqFromFile);
         	return;
     	}
+    	// else have to find correct position
     	
+    }
+    
+    private long findCorrect(long oldPos, String seqNeeded)
+    {
+    	boolean isFound = false;
+    	long newPos = -1;
+    	
+    	int start = (int) oldPos / 32;
+    	int end = start + 1;
+    	long vOldPos = oldPos;
+    	
+    	start *= 32;
+    	end *= 32;
+    	
+    	
+    	
+    	while(!isFound)
+    	{
+    		// check a new hash entry
+    		oldPos += 1;
+    		
+    		// if reach end of bucket, loop back to beginning
+    		if (oldPos > end)
+    		{
+    			oldPos = start;
+    		}
+    		
+    		// iterated through entire bucket at least once
+    		// sequence was not found
+    		if (oldPos == vOldPos)
+    		{
+    			break;
+    		}
+    		
+    		// get pair at the position in hash table
+        	Pair<Pair<Integer, Integer>, Pair<Integer, Integer>> currHashPos =
+        			hashTable.get((int) oldPos);
+        	
+        	// check if there is a pair at that position
+        	if (currHashPos == null)
+        	{
+        		// case where entry is null
+        		continue;
+        	}
+        	
+        	// get position of seqID
+        	int seqIdPos = currHashPos.getKey().getKey();
+        	
+        	// check if sequence ID is same
+        	String fromFile = getDataFromFile((long) seqIdPos);
+        	
+        	// case where correct seqID is found, need to break from loop
+        	if (fromFile.equalsIgnoreCase(seqNeeded))
+        	{
+        		newPos = oldPos;
+                isFound = true;
+        	}
+    	}
+    	
+    	return newPos;
     }
 
     public void moveToStart() { curr = head.next(); } // Set curr at list start

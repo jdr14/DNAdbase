@@ -74,6 +74,12 @@ public class DnaParse extends Parse
                     {
                         //parsedList.add(new 
                           //      Pair<String, String>(listedLine.get(0), ""));
+                    	mManager.remove(listedLine.get(1));
+                    }
+                    else if (listedLine.size() == 2 && 
+                		    listedLine.get(0).equalsIgnoreCase("search"))
+                    {
+                    	mManager.search(listedLine.get(1));
                     }
                     else if (listedLine.size() == 2 && 
                     		listedLine.get(0).equalsIgnoreCase("search"))
