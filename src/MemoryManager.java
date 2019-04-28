@@ -355,12 +355,18 @@ public class MemoryManager
     private long findCorrect(long oldPos, String seqNeeded)
     {
     	boolean isFound = false;
+    	
+    	//default. if -1 is returned the sequence was never found
     	long newPos = -1;
     	
+    	// set and starting and ending index for the bucket
     	int start = (int) oldPos / 32;
     	int end = start + 1;
+    	
+    	// remember original old position to use for conclusion of search
     	long vOldPos = oldPos;
     	
+    	// shift to set to correct bucket positioning
     	start *= 32;
     	end *= 32;
     	
