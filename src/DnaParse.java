@@ -21,7 +21,7 @@ public class DnaParse extends Parse
 			String hashFileArg, long hashTableSize, String memoryFileName) 
 	{
 		super(commandFileName);
-		MemoryManager memManager = new MemoryManager();
+		MemoryManager memManager = new MemoryManager(memoryFileName);
 	}
 
 	public Boolean parseMain()
@@ -65,7 +65,7 @@ public class DnaParse extends Parse
                         	handleInsert(seqId, sequence, sequenceLength);
                         }
                     }
-                    // Case remove
+                    // Case remove or search
                     else if (listedLine.size() == 2)
                     {
                         parsedList.add(new 
