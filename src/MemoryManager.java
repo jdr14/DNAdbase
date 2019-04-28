@@ -193,7 +193,7 @@ public class MemoryManager
     private boolean append(Node<Pair<Long, Long>> memoryHandles) 
     {
         tail.setNext(new Node(null));
-        tail.setItem(it);
+        tail.setItem(memoryHandles.item());
         tail = tail.next();
         listSize++;
         return true;
@@ -223,7 +223,7 @@ public class MemoryManager
     // Move curr one step left; no change if now at front
     public void prev() {
       if (head.next() == curr) return; // No previous element
-      Link temp = head;
+      Node temp = head;
       // March down list until we find the previous element
       while (temp.next() != curr) temp = temp.next();
       curr = temp;
@@ -242,7 +242,7 @@ public class MemoryManager
      * Return list length
      * @return length of the list as an integer
      */
-    public int length() 
+    public long length() 
     { 
     	return listSize; 
     } 
