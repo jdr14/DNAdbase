@@ -35,13 +35,25 @@ public class MemoryManager
     private RandomAccessFile memFile;
     
     /**
+     * Project spec declares offset should be stored as an int
+     * Use this private variable to help with casting from long to int
+     */
+    private long intMaxAsLong = (long)Integer.MAX_VALUE;
+    
+    /**
+     * Private hashTable to track the memory handles
+     * M1 should be the handle to sequence ID (offset and length)
+     * M2 should be the handle to the actual sequence (offset and length)
+     */
+    private Pair<Pair<Integer, Integer>, Pair<Integer, Integer>> hashTable;
+    
+    /**
      * Constructor creates 
      * @param hashFileName
      */
 	public MemoryManager(String memoryFileName) 
 	{
-        // Each pair should have the length of sequence as well 
-		// as the pointer to the actual sequence on file as well
+        // Initialize the memory file for external disk storage
 		try
 		{
 			// File is the stream used to create the hash (binary) file...
@@ -52,6 +64,11 @@ public class MemoryManager
 			System.err.println("Error with creating the memory file " 
 		        + e.getMessage());
 		}
+		
+		// Initialize the linked list size as well as head, current, and tail
+		listSize = 0;
+		curr = tail = new Node();
+		head = new Node();
 	}
 	
 	/**
@@ -91,7 +108,7 @@ public class MemoryManager
     // Remove all elements and reset the linked list
     public void clear() 
     {
-        curr = tail = new Node(null); // Create trailer
+        curr = tail = new Node(); // Create trailer
         head = new Node(tail);        // Create header
         listSize = 0;
     }
@@ -125,13 +142,51 @@ public class MemoryManager
 	}
     
     // Insert "it" at current position
-    public boolean insert(Node<Pair<Long, String>> it) 
+    public boolean insert(String seqId, String seq, long seqLength) 
+    		throws IOException
     {
+    	// Case where listSize is empty means there are currently no empty
+    	// spaces/slots in the file where seqId and/or seq could go
+    	// Therefore, just insert at the end of the file.
+    	if (listSize == 0)
+    	{
+    		// Get the pointer to file offset from the beginning (in bytes)
+    		long seqIdOffset = memFile.getFilePointer();
+    		
+    		//
+    		if (seqIdOffset >= intMaxAsLong)
+    		{
+    			return false;
+    		}
+    		
+    	    // First insert the sequence ID.  
+    		
+    		Pair<Long, > m1 = new Pair();
+    	}
+    	else
+    	{
+    		/*
+    		 Collision resolution will use simple linear probing, 
+    		 with wrap-around at the bottom of the current bucket. 
+    		 For example, if a string hashes to slot 60 in the table, 
+    		 the probe sequence will be slots 61, then 62, then 63, 
+    		 which is the bottom slot of that bucket. 
+    		 The next probe will wrap to the top of the bucket, 
+    		 or slot 32, then to slot 33, and so on. 
+    		 If the bucket is completely full, then the insert request 
+    		 will be rejected. Note that if the insert fails, the 
+    		 corresponding sequence and sequenceID strings must be 
+    		 removed from the memory manager's memory pool as well.
+    		 */
+    	}
+    		
+    	/*
         curr.setNext(new Node(curr.item(), curr.next()));
         curr.setItem(it);
         if (tail == curr) tail = curr.next();  // New tail
         listSize++;
-        return true;
+        */
+    	return true;
     }
     
     // Append "it" to list
@@ -175,54 +230,83 @@ public class MemoryManager
     }
 
     // Move curr one step right; no change if now at end
-    public void next() { if (curr != tail) curr = curr.next(); }
-
-    public int length() { return listSize; } // Return list length
-
-
-    // Return the position of the current element
-    public int currPos() {
-      Link temp = head.next();
-      int i;
-      for (i=0; curr != temp; i++)
-        temp = temp.next();
-      return i;
-    }
-    
-    // Move down list to "pos" position
-    public boolean moveToPos(int pos) {
-      if ((pos < 0) || (pos > listSize)) return false;
-      curr = head.next();
-      for(int i=0; i<pos; i++) curr = curr.next();
-      return true;
+    public void next() 
+    { 
+    	if (curr != tail) 
+    	{
+    		curr = curr.next(); 
+    	}
     }
 
-    // Return true if current position is at end of the list
-    public boolean isAtEnd() { return curr == tail; }
+    /**
+     * Return list length
+     * @return length of the list as an integer
+     */
+    public int length() 
+    { 
+    	return listSize; 
+    } 
 
-    // Return current element value. Note that null gets returned if curr is at the tail
-    public Object getValue() { return curr.element(); }
 
-    // Check if the list is empty
-    public boolean isEmpty() { return listSize == 0; }
+    /**
+     * Return the position of the current element
+     * @return position of current element as an integer
+     */
+    public int currPos() 
+    {
+        Node temp = head.next();
+        int i;
+        for (i=0; curr != temp; i++)
+        {
+        	temp = temp.next();
+        }
+        return i;
+    }
     
-    public String toString() {
-  		Link temp = head.next();
-  		StringBuffer out = new StringBuffer((listSize + 1) * 4);
+    /**
+     * Move down list to "pos" position
+     * @param pos (position) to move 
+     * @return boolean value based on move success
+     */
+    public boolean moveToPos(int pos) 
+    {
+        if ((pos < 0) || (pos > listSize)) 
+        {
+    	    return false;
+        }
+        curr = head.next();
+        for (int i=0; i<pos; i++) 
+        {
+        	curr = curr.next();
+        }
+        return true;
+    }
 
-  		out.append("< ");
-  		for (int i = 0; i < currPos(); i++) {
-  			out.append(temp.element());
-  			out.append(" ");
-  			temp = temp.next();
-  		}
-  		out.append("| ");
-  		for (int i = currPos(); i < listSize; i++) {
-  			out.append(temp.element());
-  			out.append(" ");
-  			temp = temp.next();
-  		}
-  		out.append(">");
-  		return out.toString();
-  	  }
+    /**
+     * Return true if current position is at end of the list
+     * @return boolean value based on if the curr node is equal to the tail
+     */
+    public boolean isAtEnd() 
+    { 
+    	return curr == tail; 
+    }
+
+    /**
+     * Return current element value. Note that null gets returned if curr is at the tail
+     * @return item of the current node
+     */
+    public Object getValue() 
+    { 
+    	return curr.item(); 
+    }
+
+    /**
+     * Check if the list is empty
+     * @return true if the list is empty and false otherwise
+     */
+    public boolean isEmpty() 
+    { 
+    	return listSize == 0; 
+    }
+   
 }
