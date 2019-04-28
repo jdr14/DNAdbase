@@ -1,4 +1,5 @@
 import java.io.*;
+import java.util.*;
 
 /**
  * Class to keep track of the empty spaces in the binary (hash file)
@@ -41,17 +42,23 @@ public class MemoryManager
     private long intMaxAsLong = (long)Integer.MAX_VALUE;
     
     /**
+     * size of hash table, used for calls to sfold
+     */
+    private int hashTableSize;
+    
+    /**
      * Private hashTable to track the memory handles
      * M1 should be the handle to sequence ID (offset and length)
      * M2 should be the handle to the actual sequence (offset and length)
      */
-    private Pair<Pair<Integer, Integer>, Pair<Integer, Integer>> hashTable;
+    private ArrayList<Pair<Pair<Integer, Integer>,
+        Pair<Integer, Integer>>> hashTable;
     
     /**
      * Constructor creates 
      * @param hashFileName
      */
-	public MemoryManager(String memoryFileName) 
+	public MemoryManager(String memoryFileName, long tableSize) 
 	{
         // Initialize the memory file for external disk storage
 		try
@@ -69,13 +76,16 @@ public class MemoryManager
 		listSize = 0;
 		curr = tail = new Node();
 		head = new Node();
+		hashTableSize = (int) tableSize;
+		hashTable = new ArrayList<Pair<Pair<Integer, Integer>,
+				Pair<Integer, Integer>>>(hashTableSize);
 	}
 	
 	/**
 	 * Hashing function to compute the index (slot) of the hash table where
 	 * the memory handles are to be stored.
-	 * @param s
-	 * @param M
+	 * @param s of type string, seqID to be placed/looked-up
+	 * @param M of type integer, size of the hash table
 	 * @return slot index as a long
 	 */
 	private long sfold(String s, int M) 
@@ -141,53 +151,53 @@ public class MemoryManager
 		
 	}
     
-    // Insert "it" at current position
-    public boolean insert(String seqId, String seq, long seqLength) 
-    		throws IOException
-    {
-    	// Case where listSize is empty means there are currently no empty
-    	// spaces/slots in the file where seqId and/or seq could go
-    	// Therefore, just insert at the end of the file.
-    	if (listSize == 0)
-    	{
-    		// Get the pointer to file offset from the beginning (in bytes)
-    		long seqIdOffset = memFile.getFilePointer();
-    		
-    		//
-    		if (seqIdOffset >= intMaxAsLong)
-    		{
-    			return false;
-    		}
-    		
-    	    // First insert the sequence ID.  
-    		
-    		Pair<Long, > m1 = new Pair();
-    	}
-    	else
-    	{
-    		/*
-    		 Collision resolution will use simple linear probing, 
-    		 with wrap-around at the bottom of the current bucket. 
-    		 For example, if a string hashes to slot 60 in the table, 
-    		 the probe sequence will be slots 61, then 62, then 63, 
-    		 which is the bottom slot of that bucket. 
-    		 The next probe will wrap to the top of the bucket, 
-    		 or slot 32, then to slot 33, and so on. 
-    		 If the bucket is completely full, then the insert request 
-    		 will be rejected. Note that if the insert fails, the 
-    		 corresponding sequence and sequenceID strings must be 
-    		 removed from the memory manager's memory pool as well.
-    		 */
-    	}
-    		
-    	/*
-        curr.setNext(new Node(curr.item(), curr.next()));
-        curr.setItem(it);
-        if (tail == curr) tail = curr.next();  // New tail
-        listSize++;
-        */
-    	return true;
-    }
+//    // Insert "it" at current position
+//    public boolean insert(String seqId, String seq, long seqLength) 
+//    		throws IOException
+//    {
+//    	// Case where listSize is empty means there are currently no empty
+//    	// spaces/slots in the file where seqId and/or seq could go
+//    	// Therefore, just insert at the end of the file.
+//    	if (listSize == 0)
+//    	{
+//    		// Get the pointer to file offset from the beginning (in bytes)
+//    		long seqIdOffset = memFile.getFilePointer();
+//    		
+//    		//
+//    		if (seqIdOffset >= intMaxAsLong)
+//    		{
+//    			return false;
+//    		}
+//    		
+//    	    // First insert the sequence ID.  
+//    		
+//    		Pair<Long, > m1 = new Pair();
+//    	}
+//    	else
+//    	{
+//    		/*
+//    		 Collision resolution will use simple linear probing, 
+//    		 with wrap-around at the bottom of the current bucket. 
+//    		 For example, if a string hashes to slot 60 in the table, 
+//    		 the probe sequence will be slots 61, then 62, then 63, 
+//    		 which is the bottom slot of that bucket. 
+//    		 The next probe will wrap to the top of the bucket, 
+//    		 or slot 32, then to slot 33, and so on. 
+//    		 If the bucket is completely full, then the insert request 
+//    		 will be rejected. Note that if the insert fails, the 
+//    		 corresponding sequence and sequenceID strings must be 
+//    		 removed from the memory manager's memory pool as well.
+//    		 */
+//    	}
+//    		
+//    	/*
+//        curr.setNext(new Node(curr.item(), curr.next()));
+//        curr.setItem(it);
+//        if (tail == curr) tail = curr.next();  // New tail
+//        listSize++;
+//        */
+//    	return true;
+//    }
     
     // Append "it" to list
     private boolean append(Node<Pair<Long, Long>> memoryHandles) 
@@ -200,12 +210,23 @@ public class MemoryManager
     }
 
     // Remove and return current element
-    public Pair<Long, Long> remove () 
+    public void remove (String seqToRemove) 
     {
-        if (curr == tail) 
-        {
-    	    return null;          // Nothing to remove
-        }
+    	// get positioning using the sfold function
+    	long hashPosition = sfold(seqToRemove, hashTableSize);
+    	
+    	// get values at the position in hash table
+    	Pair<Pair<Integer, Integer>, Pair<Integer, Integer>> currPosition =
+    			hashTable.get((int) hashPosition);
+    	
+    	// check if there is a value at that position
+    	
+    	
+    	// check if value is correct value
+    	
+    	// if correct, remove and add entries to list
+    	
+    	// else find correct slot 
         Pair<Long, Long> it = curr.item();  // Remember value
         curr.setItem(curr.next().item());  // Pull forward the next element
         if (curr.next() == tail) 
@@ -214,7 +235,6 @@ public class MemoryManager
         }
         curr.setNext(curr.next().next());       // Point around unneeded link
         listSize--;                             // Decrement element count
-        return it;                              // Return value
     }
 
     public void moveToStart() { curr = head.next(); } // Set curr at list start
@@ -223,7 +243,7 @@ public class MemoryManager
     // Move curr one step left; no change if now at front
     public void prev() {
       if (head.next() == curr) return; // No previous element
-      Node temp = head;
+      Node<Pair<Long, Long>> temp = head;
       // March down list until we find the previous element
       while (temp.next() != curr) temp = temp.next();
       curr = temp;
@@ -254,7 +274,7 @@ public class MemoryManager
      */
     public int currPos() 
     {
-        Node temp = head.next();
+        Node<Pair<Long, Long>> temp = head.next();
         int i;
         for (i=0; curr != temp; i++)
         {
