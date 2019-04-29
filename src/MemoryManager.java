@@ -41,24 +41,13 @@ public class MemoryManager
      */
     private long intMaxAsLong = (long)Integer.MAX_VALUE;
     
-    /**
-     * size of hash table, used for calls to sfold
-     */
-    private int hashTableSize;
-    
-    /**
-     * Private hashTable to track the memory handles
-     * M1 should be the handle to sequence ID (offset and length)
-     * M2 should be the handle to the actual sequence (offset and length)
-     */
-    private ArrayList<Pair<Pair<Integer, Integer>,
-        Pair<Integer, Integer>>> hashTable;
+
     
     /**
      * Constructor creates 
      * @param hashFileName
      */
-	public MemoryManager(String memoryFileName, long tableSize) 
+	public MemoryManager(String memoryFileName) 
 	{
         // Initialize the memory file for external disk storage
 		try
@@ -76,51 +65,6 @@ public class MemoryManager
 		listSize = 0;
 		curr = tail = new Node();
 		head = new Node();
-		hashTableSize = (int) tableSize;
-		hashTable = new ArrayList<Pair<Pair<Integer, Integer>,
-				Pair<Integer, Integer>>>(hashTableSize);
-	}
-	
-	/**
-	 * Default Constructor
-	 */
-	public MemoryManager()
-	{
-		
-	}
-	
-	/**
-	 * Hashing function to compute the index (slot) of the hash table where
-	 * the memory handles are to be stored.
-	 * @param s of type string, seqID to be placed/looked-up
-	 * @param M of type integer, size of the hash table
-	 * @return slot index as a long
-	 */
-	private long sfold(String s, int M) 
-	{
-		int intLength = s.length() / 4;
-		long sum = 0;
-		for (int j = 0; j < intLength; j++) 
-		{
-		    char c[] = s.substring(j * 4, (j * 4) + 4).toCharArray();
-		    long mult = 1;
-		    for (int k = 0; k < c.length; k++) 
-		    {
-		        sum += c[k] * mult;
-		        mult *= 256;
-		    }
-		}
-
-		char c[] = s.substring(intLength * 4).toCharArray();
-	    long mult = 1;
-		for (int k = 0; k < c.length; k++) 
-		{
-            sum += c[k] * mult;
-	        mult *= 256;
-        }
-
-		sum = (sum * sum) >> 8;
-		return(Math.abs(sum) % M);
 	}
 
     // Remove all elements and reset the linked list
@@ -136,13 +80,10 @@ public class MemoryManager
 	 * @param sequence of type string
 	 * @throws IOException
 	 */
-	public void writeToFile(String s) throws IOException
+	public void writeToFile(byte [] s) throws IOException
 	{
-		// get current hash file location
-		long currentPointer = memFile.getFilePointer();
-		
 		// write string to hash file as bytes
-		memFile.write(s.getBytes());
+		memFile.write(s);
 	}
 	
 	/**
@@ -159,69 +100,135 @@ public class MemoryManager
 		
 	}
     
-    // Insert "it" at current position
-    public boolean insert(String seqId, String seq, int seqLength) 
-    		throws IOException
+	/**
+	 * Insert "it" at current position
+	 * @param seqId
+	 * @param seq
+	 * @return a pair of pairs to be placed in hashTable
+	 */
+    public Pair<Pair<Long, Long>, Pair<Long, Long>> 
+        insert(String seqId, String seq)
     {
-    	// Case where listSize is empty means there are currently no empty
-    	// spaces/slots in the file where seqId and/or seq could go
-    	// Therefore, just insert at the end of the file.
-    	if (listSize == 0)
+    	// pair to be returned at end of function
+    	Pair<Pair<Long, Long>, Pair<Long, Long>> result =
+    			new Pair<Pair<Long, Long>, Pair<Long, Long>>();
+    	
+    	// convert both seqId and seq into byte arrays in
+    	// accordance with the project sheet
+    	byte[] arrayofId = stringToByte(seqId);
+    	byte[] arrayofSeq = stringToByte(seq);
+    	
+    	// variable used to save position of seqId in file
+    	long posOfseqId = 0;
+    	// variable used to save position of seq in file
+    	long posOfSeq = 0;
+    	
+        // case where space was found in list for the seqID
+    	// parameter of this function might be string
+    	if (spaceInList(arrayofId))
     	{
-    		// Get the pointer to file offset from the beginning (in bytes)
-    		long firstFilePointer = memFile.getFilePointer();
-    		
-    		// Check if the length after potential insertion of sequence ID
-    		// is within valid range of integer type
-    		if (firstFilePointer + seqId.getBytes().length > intMaxAsLong)
-    		{
-    			return false;
-    		}
-    		
-    	    // First insert the sequence ID.  
-    		int seqIdOffset = (int)firstFilePointer;
-    		
-    		// Create memory handle 1 containing seqID offset and length
-    		Pair<Integer, Integer> m1 = new Pair<Integer, Integer>(
-    				seqIdOffset, seqId.length());
-    		
-    		// Write the sequence ID to the file
-    		writeToFile(seqId);
-    		
-            // file pointer should be updated after writing the sequence bytes
-    		// to the memory file.  Convert 2nd file pointer to sequence offset
-    		int seqOffset = (int)memFile.getFilePointer();
-    		
-    		// Create memory handle 2 containing sequence offset and length
-    		Pair<Integer, Integer> m2 = new Pair<Integer, Integer>(
-    				seqOffset, seqLength);
-    		
-    		
+    		// if space available, place in list and save position
+    		posOfseqId = enplaceInList(arrayofId);
     	}
     	else
     	{
-    		/*
-    		 Collision resolution will use simple linear probing, 
-    		 with wrap-around at the bottom of the current bucket. 
-    		 For example, if a string hashes to slot 60 in the table, 
-    		 the probe sequence will be slots 61, then 62, then 63, 
-    		 which is the bottom slot of that bucket. 
-    		 The next probe will wrap to the top of the bucket, 
-    		 or slot 32, then to slot 33, and so on. 
-    		 If the bucket is completely full, then the insert request 
-    		 will be rejected. Note that if the insert fails, the 
-    		 corresponding sequence and sequenceID strings must be 
-    		 removed from the memory manager's memory pool as well.
-    		 */
+    		// else put seqId at the end of file
+    		try {
+				posOfseqId = placeAtEndOfFile(arrayofId);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
     	}
-    		
-    	/*
-        curr.setNext(new Node(curr.item(), curr.next()));
-        curr.setItem(it);
-        if (tail == curr) tail = curr.next();  // New tail
-        listSize++;
-        */
-    	return true;
+        
+    	// creation of the first entry in the pair to be returned
+    	// second parameter might have to be length of string
+    	Pair<Long, Long> bigKey = 
+    			new Pair<Long, Long>(posOfseqId, (long)arrayofId.length);
+    	
+    	// case where space was found in list for the seq
+    	// parameter of this function might be string
+    	if (spaceInList(arrayofSeq))
+    	{
+    		// if space available, place in list and save position
+    		posOfSeq = enplaceInList(arrayofSeq);
+    	}
+    	else
+    	{
+    		// else put seq at end of file
+    		try {
+				posOfSeq = placeAtEndOfFile(arrayofSeq);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+    	}
+    	// creation of the second entry in pair to be returned
+    	// second parameter might have to be length of string
+    	Pair<Long, Long> bigValue = 
+    			new Pair<Long, Long>(posOfSeq, (long)arrayofSeq.length);
+    	
+    	// set result to have the correct values calculated
+    	result.setKey(bigKey);
+    	result.setValue(bigValue);
+    	
+    	return result;
+    }
+    
+    /**
+     * 
+     * @param convertThis
+     * @return the byte array of the string given
+     */
+    private byte[] stringToByte(String convertThis)
+    {
+    	int length = (int) Math.ceil((double)convertThis.length());
+    	
+    	byte[] result = new byte[length];
+    	
+    	// a lot more code is needed here!
+    	
+    	return result;
+    }
+    
+    /**
+     * Function used to check if there is space in the
+     * linked list for byte array passed in
+     * @param insertThis
+     * @return
+     */
+    private boolean spaceInList(byte[] insertThis)
+    {
+    	return false;
+    }
+    
+    /**
+     * Function that places the seq/seqID into its position
+     * @param insertThis
+     * @return the position in the file of the seq/seqId
+     */
+    private long enplaceInList(byte[] insertThis)
+    {
+    	return 0;
+    }
+    
+    /**
+     * Function called for when no space in list found,
+     * just put at end of file
+     * @param insertThis
+     * @return the position in the file of the seq/seqId
+     * @throws IOException 
+     */
+    private long placeAtEndOfFile(byte[] insertThis) throws IOException
+    {
+    	// Get the pointer to file offset from the beginning (in bytes)
+		long posInFile = memFile.getFilePointer();
+		
+	    // First insert the sequence ID.  
+		int seqIdOffset = (int)posInFile;
+		
+		// Write the sequence ID to the file
+		writeToFile(insertThis);
+		
+    	return posInFile;
     }
     
     // Append "it" to list
@@ -234,66 +241,36 @@ public class MemoryManager
         return true;
     }
 
-    // Remove and return current element
-    public void remove (String seqToRemove) 
+    /**
+     * 
+     * @param seqToRemove
+     * Remove and return current element
+     */
+    public boolean remove (Pair<Pair<Long, Long>,
+    		Pair<Long, Long>> hashEntry) 
     {
-    	// get positioning using the sfold function
-    	long hashPosition = sfold(seqToRemove, hashTableSize);
     	
-    	// get pair at the position in hash table
-    	Pair<Pair<Integer, Integer>, Pair<Integer, Integer>> currHashPos =
-    			hashTable.get((int) hashPosition);
-    	
-    	// check if there is a pair at that position
-    	if (currHashPos == null)
-    	{
-    		// case where sfold returns empty position
-    		// sequence does not exist
-    		System.out.println("No sequence found using sequenceID: " + seqToRemove);
-    		return;
-    	}
-    	
-    	// get position of seqID
-    	int seqIdPos = currHashPos.getKey().getKey();
-    	
-        // check if sequence ID is same
-    	String fromFile = getDataFromFile((long) seqIdPos);
-    	
-    	// if sequence does not match, search the rest of the bucket
-    	if (!fromFile.equalsIgnoreCase(seqToRemove))
-    	{
-    		// look for correct position in bucket
-    		hashPosition = findCorrect(seqIdPos, fromFile);
-    		
-    		// if enters this case, no entry in bucket matches
-    		if (hashPosition == -1)
-    		{
-    			System.out.println("No sequence found using sequenceID: " + seqToRemove);
-        		return;
-    		}
-    	}
-    	
-    	// re-set the variables to correct values
-    	currHashPos = hashTable.get((int) hashPosition);
-    	seqIdPos = currHashPos.getKey().getKey();
-    	fromFile = getDataFromFile((long) seqIdPos);
-    	
-    	// if correct, add entries to linked list of free spaces
-    	curr.setNext(new Node(currHashPos.getKey()));
+		// if correct, add entries to linked list of free spaces
+		// make sure that this is correct but it makes sense
+    	curr.setNext(new Node(hashEntry.getKey()));
     	curr = curr.next();
-    	curr.setNext(new Node(currHashPos.getValue()));
+    	curr.setNext(new Node(hashEntry.getValue()));
     	listSize += 2;
     	
-    	// if correct, remove entry from the hash table
-    	hashTable.set((int) hashPosition, null);
     	
     	// print out sequence
+    	// these next couple of lines need to get fixed
+    	// need to decode the bytes grabbed from the file
+    	// need to double check if these values are what I think
+    	// this double checking needs to be done in all: insert,
+    	// search, and remove
+    	long seqPos1 = hashEntry.getKey().getValue();
+    	String seqToRemove = getDataFromFile(seqPos1);
     	System.out.println("Sequence Removed " + seqToRemove + ": ");
-    	int seqPos = currHashPos.getValue().getKey();
-    	String seqFromFile = getDataFromFile((long) seqPos);
+    	long seqPos = hashEntry.getValue().getValue();
+    	String seqFromFile = getDataFromFile(seqPos);
     	System.out.println(seqFromFile);
-        
-    	// add another check for good coding style
+        return true;
     }
     
     /**
@@ -321,125 +298,27 @@ public class MemoryManager
      * 
      * @param seqToSearch
      */
-    public void search(String seqToSearch)
-    {
-    	// get positioning using the sfold function
-    	long hashPosition = sfold(seqToSearch, hashTableSize);
-    	
-    	// get pair at the position in hash table
-    	Pair<Pair<Integer, Integer>, Pair<Integer, Integer>> currHashPos =
-    			hashTable.get((int) hashPosition);
-    	
-    	// check if there is a pair at that position
-    	if (currHashPos == null)
-    	{
-    		// case where sfold returns empty position
-    		// sequence does not exist
-    		System.out.println("SequenceID " + seqToSearch + " not found");
-    		return;
-    	}
-    	
-    	// get position of seqID
-    	int seqIdPos = currHashPos.getKey().getKey();
-    	
+    public boolean search(String seqId, long seqIdPos)
+    {	
         // check if sequence ID is same
     	String fromFile = getDataFromFile((long) seqIdPos);
     	
     	
     	// case where seqID does not match, need to find correct value
-    	if (!fromFile.equalsIgnoreCase(seqToSearch))
-    	{
-    		hashPosition = findCorrect(hashPosition, fromFile);
-    		
-    		// case where the sequence is not found in the bucket
-        	if (hashPosition == -1)
-        	{
-        		System.out.println("SequenceID " + seqToSearch + " not found");
-        		return;
-        	}
-    	}
-    	
-    	// reset the value of to correct value
-    	currHashPos = hashTable.get((int) hashPosition);
-    	
-    	// case where correct seqID is found
-    	// get seq offset and print string found
-    	int seqPos = currHashPos.getValue().getKey();
-    	String seqFromFile = getDataFromFile((long) seqPos);
-    	System.out.println("Sequence Found: " + seqFromFile);
-    	
-    	// add another check for good coding style
+    	return fromFile.equalsIgnoreCase(seqId);
+
     }
     
     /**
      * 
-     * @param oldPos
-     * @param seqNeeded
-     * @return
+     * @param seqPos
      */
-    private long findCorrect(long oldPos, String seqNeeded)
+    public void printSeq(long seqPos)
     {
-    	boolean isFound = false;
-    	
-    	//default. if -1 is returned the sequence was never found
-    	long newPos = -1;
-    	
-    	// set and starting and ending index for the bucket
-    	int start = (int) oldPos / 32;
-    	int end = start + 1;
-    	
-    	// remember original old position to use for conclusion of search
-    	long vOldPos = oldPos;
-    	
-    	// shift to set to correct bucket positioning
-    	start *= 32;
-    	end *= 32;
-    	
-    	while(!isFound)
-    	{
-    		// check a new hash entry
-    		oldPos += 1;
-    		
-    		// if reach end of bucket, loop back to beginning
-    		if (oldPos > end)
-    		{
-    			oldPos = start;
-    		}
-    		
-    		// iterated through entire bucket at least once
-    		// sequence was not found
-    		if (oldPos == vOldPos)
-    		{
-    			break;
-    		}
-    		
-    		// get pair at the position in hash table
-        	Pair<Pair<Integer, Integer>, Pair<Integer, Integer>> currHashPos =
-        			hashTable.get((int) oldPos);
-        	
-        	// check if there is a pair at that position
-        	if (currHashPos == null)
-        	{
-        		// case where entry is null
-        		continue;
-        	}
-        	
-        	// get position of seqID
-        	int seqIdPos = currHashPos.getKey().getKey();
-        	
-        	// check if sequence ID is same
-        	String fromFile = getDataFromFile((long) seqIdPos);
-        	
-        	// case where correct seqID is found, need to break from loop
-        	if (fromFile.equalsIgnoreCase(seqNeeded))
-        	{
-        		newPos = oldPos;
-                isFound = true;
-        	}
-    	}
-    	
-    	return newPos;
+    	String seqFromFile = getDataFromFile((long) seqPos);
+    	System.out.println("Sequence Found: " + seqFromFile);
     }
+    
 
     public void moveToStart() { curr = head.next(); } // Set curr at list start
     public void moveToEnd() { curr = tail; }          // Set curr at list end
@@ -533,5 +412,5 @@ public class MemoryManager
     { 
     	return listSize == 0; 
     }
-   
+    
 }

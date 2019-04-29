@@ -1,6 +1,9 @@
 public class DNAdbase 
 {
 
+	/**
+	 * 
+	 */
 	public DNAdbase() 
 	{
 		// TODO Auto-generated constructor stub
@@ -32,7 +35,9 @@ public class DNAdbase
 	    		hashFileName, hashTableSize, memoryFileName);
 	    
 	    // Run the parser on the given arguments...
-	    parser.parseMain();
+	    DnaMain dMain = new DnaMain(commandFileName, hashFileName,
+	    		hashTableSize, memoryFileName);
+	    parser.parseMain(dMain);
 	    
 		// HashTableSize = Integer.parseInt(args[2]) * 32; 
 	}

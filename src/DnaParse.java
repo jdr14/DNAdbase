@@ -12,8 +12,15 @@ import java.util.Scanner;
  */
 public class DnaParse extends Parse
 {
-	
+	/**
+	 * 
+	 */
 	private MemoryManager mManager;
+	
+	/**
+	 * 
+	 */
+	private DnaMain dMain;
     /**
      * Constructor which calls parent (Parse) constructor internally
      * @param fileName (file name of a file that exists passed in as a string)
@@ -22,7 +29,7 @@ public class DnaParse extends Parse
 			String hashFileArg, long hashTableSize, String memoryFileName) 
 	{
 		super(commandFileName);
-		mManager = new MemoryManager(memoryFileName, hashTableSize);
+		mManager = new MemoryManager(memoryFileName);
 	}
     
 	/**
@@ -30,8 +37,9 @@ public class DnaParse extends Parse
 	 * the command file
 	 * @return true on success
 	 */
-	public Boolean parseMain()
+	public Boolean parseMain(DnaMain d)
 	{
+		dMain = d;
 		File commandFile = new File(this.getFileName());
 		
         // Try/Catch block to account for case if file is not found
@@ -63,17 +71,9 @@ public class DnaParse extends Parse
                         List<String> nextLineAsList = 
                             		lineAsList(inFileStream.nextLine().trim());
                        	String sequence = nextLineAsList.get(0); 
-                        	
-                        // Off-load work to helper method
-                       	try 
-                       	{
-							mManager.insert(seqId, sequence, (int) sequenceLength);
-						} 
-                       	catch (IOException e) 
-                       	{
-							System.err.println("Error in calling insert: "
-                       	        + e.getLocalizedMessage());
-						}
+                        
+                       	// Off-load work to helper method
+                       	dMain.insert(seqId, sequence, (int) sequenceLength);
                        	//handleInsert(seqId, sequence, sequenceLength);
                     }
                     // Case remove
@@ -82,12 +82,13 @@ public class DnaParse extends Parse
                     {
                         //parsedList.add(new 
                           //      Pair<String, String>(listedLine.get(0), ""));
-                    	mManager.remove(listedLine.get(1));
+                    	// new implementation below, old implementation is above
+                    	dMain.remove(listedLine.get(1));
                     }
                     else if (listedLine.size() == 2 && 
                 		    listedLine.get(0).equalsIgnoreCase("search"))
                     {
-                    	mManager.search(listedLine.get(1));
+                    	dMain.search(listedLine.get(1));
                     }
                     else if (listedLine.size() == 2 && 
                     		listedLine.get(0).equalsIgnoreCase("search"))
