@@ -82,6 +82,14 @@ public class MemoryManager
 	}
 	
 	/**
+	 * Default Constructor
+	 */
+	public MemoryManager()
+	{
+		
+	}
+	
+	/**
 	 * Hashing function to compute the index (slot) of the hash table where
 	 * the memory handles are to be stored.
 	 * @param s of type string, seqID to be placed/looked-up
