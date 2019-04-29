@@ -65,7 +65,15 @@ public class DnaParse extends Parse
                        	String sequence = nextLineAsList.get(0); 
                         	
                         // Off-load work to helper method
-                       	mManager.insert(seqId, sequence, sequenceLength);
+                       	try 
+                       	{
+							mManager.insert(seqId, sequence, (int) sequenceLength);
+						} 
+                       	catch (IOException e) 
+                       	{
+							System.err.println("Error in calling insert: "
+                       	        + e.getLocalizedMessage());
+						}
                        	//handleInsert(seqId, sequence, sequenceLength);
                     }
                     // Case remove
