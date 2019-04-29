@@ -42,6 +42,11 @@ public class MemoryManager
     private long intMaxAsLong = (long)Integer.MAX_VALUE;
     
     /**
+     * Define the bucket size of the hash table
+     */
+    private int bucketSize = 32;
+    
+    /**
      * size of hash table, used for calls to sfold
      */
     private int hashTableSize;
@@ -148,13 +153,22 @@ public class MemoryManager
 		memFile.seek(seqPosition);
 		
 		// delete sequence
-		
 	}
     
     // Insert "it" at current position
     public boolean insert(String seqId, String seq, int seqLength) 
     		throws IOException
     {
+		Pair<Pair<Integer, Integer>, Pair<Integer, Integer>> memoryHandles;
+		
+		// Find a valid slot in the bucket
+		int slotPos = collisionResolutionPolicy(seqId);
+		if (slotPos < 0)
+		{
+			// Current bucket is full and insert cannot be completed
+			return false;
+		}
+		
     	// Case where listSize is empty means there are currently no empty
     	// spaces/slots in the file where seqId and/or seq could go
     	// Therefore, just insert at the end of the file.
@@ -188,23 +202,195 @@ public class MemoryManager
     		Pair<Integer, Integer> m2 = new Pair<Integer, Integer>(
     				seqOffset, seqLength);
     		
+    		// Write the actual sequence to the file
+    		writeToFile(seq);
     		
+    		// Create a the pair of memory handles
+            memoryHandles = new 
+    		    Pair<Pair<Integer, Integer>, Pair<Integer, Integer>>(m1, m2);
+    		
+    		// Finally, store the pair of memory handles pair 
+    		// at the calculated slot position
+    		hashTable.set(slotPos, memoryHandles);  // Should return null
     	}
-    	else
-    	{
-    		/*
-    		 Collision resolution will use simple linear probing, 
-    		 with wrap-around at the bottom of the current bucket. 
-    		 For example, if a string hashes to slot 60 in the table, 
-    		 the probe sequence will be slots 61, then 62, then 63, 
-    		 which is the bottom slot of that bucket. 
-    		 The next probe will wrap to the top of the bucket, 
-    		 or slot 32, then to slot 33, and so on. 
-    		 If the bucket is completely full, then the insert request 
-    		 will be rejected. Note that if the insert fails, the 
-    		 corresponding sequence and sequenceID strings must be 
-    		 removed from the memory manager's memory pool as well.
-    		 */
+    	else  // Handle for more than 1 node
+    	{	
+    		// Iterate through the linked list of nodes 
+    		// tracking the free space in the memory file
+    		curr = head; 
+    		Node<Pair<Long, Long>> prev = curr;
+    		
+    		boolean seqIdInserted = false;
+    		boolean seqInserted = false;
+    		
+    		Pair<Integer, Integer> m1 = null;
+    		Pair<Integer, Integer> m2 = null;
+    		
+    		long fileOffset = prev.item().getKey();
+    		long holeLength = prev.item().getValue();
+    	    
+    		if (seqId.length() <= holeLength)
+    		{
+    			m1 = new Pair<Integer, Integer>(
+    					(int)fileOffset, seqId.length());
+    			writeToFile(seqId);  // write to memory file
+    			fileOffset = memFile.getFilePointer();
+    			holeLength -= seqId.length();
+    			seqIdInserted = true;
+    		}
+    		
+    		if (seqId.length() <= holeLength)
+    		{
+    			m1 = new Pair<Integer, Integer>(
+    					(int)fileOffset, seqId.length());
+    			writeToFile(seqId);  // write to memory file
+    			fileOffset = memFile.getFilePointer();
+    			holeLength -= seqId.length();
+    			seqIdInserted = true;
+    		}
+    		
+    		// Update linked list accordingly
+    		if (holeLength != 0)
+    		{
+    			curr.setItem(new Pair<Long, Long>(fileOffset, holeLength));
+    		}
+    		else
+    		{
+    			head = curr.next();  // could be null
+    		}
+    		
+    		if (seqIdInserted && seqInserted)
+    		{
+    			memoryHandles = new Pair<Pair<Integer, Integer>, 
+    					Pair<Integer, Integer>>(m1, m2);
+    			
+    			hashTable.set(slotPos, memoryHandles);
+    			return true;
+    		}
+    		
+    		prev = curr;
+    	    curr = curr.next();
+    		while (curr != null)  // iterate through the rest of the list
+    		{
+    		    fileOffset = curr.item().getKey();  // offset
+    			holeLength = curr.item().getValue();  // length
+    			
+    			// If the hole can fit the sequence ID, insert there
+    			if (!seqIdInserted && seqId.length() <= holeLength)
+    			{
+    				// Insert the sequence ID in the first available slot
+    	    		m1 = new Pair<Integer, Integer>(
+    	    				(int)fileOffset, seqId.length());
+    	    		
+    	    		// Write sequence ID to file
+    	    		writeToFile(seqId);
+    	    		
+    	    		// Update the amount of space available in that free slot
+    	    		fileOffset = memFile.getFilePointer();
+    	    		holeLength -= seqId.length();
+    	    		seqIdInserted = true;
+    			}
+    			
+    			// Repeat similar process for sequence
+    			if (!seqInserted && seqLength <= holeLength)
+    			{
+    				m2 = new Pair<Integer, Integer>(
+    						(int)fileOffset, seqLength);
+    				
+    				writeToFile(seq);
+    				
+    				// Update accordingly
+    				fileOffset = memFile.getFilePointer();
+    				holeLength -= seqLength;
+    				seqInserted = true;
+    			}
+    			
+    			// Re-insert node back into the same place if the hole 
+    			// hasn't been filled completely
+    			if (holeLength != 0)
+    			{
+    				curr.setItem(new Pair<Long, Long>(fileOffset, holeLength));
+    			}
+    			else  // Otherwise remove the node
+    			{
+    				prev.setNext(curr.next());
+    				curr = null;
+    			}
+    			
+    			// If both memory handles have already been populated, break
+    			if (seqIdInserted && seqInserted)
+    			{
+    				break;
+    			}
+    			
+    			prev = curr;
+    			curr = curr.next();
+    		}
+    		
+    		// Handle case for when neither was inserted into a hole
+    		if (!seqIdInserted)
+    		{
+        		// Get the pointer to file offset from the beginning (in bytes)
+        		long firstFilePointer = memFile.getFilePointer();
+        		
+        		// Check if the length after potential insertion of sequence ID
+        		// is within valid range of integer type
+        		if (firstFilePointer + seqId.getBytes().length > intMaxAsLong)
+        		{
+        			return false;
+        		}
+        		
+        	    // First insert the sequence ID.  
+        		int seqIdOffset = (int)firstFilePointer;
+        		
+        		// Create memory handle 1 containing seqID offset and length
+        		m1 = new Pair<Integer, Integer>(
+        				seqIdOffset, seqId.length());
+        		
+        		// Write the sequence ID to the file
+        		writeToFile(seqId);
+        		
+                // file pointer should be updated after writing the sequence bytes
+        		// to the memory file.  Convert 2nd file pointer to sequence offset
+        		int seqOffset = (int)memFile.getFilePointer();
+        		
+        		// Create memory handle 2 containing sequence offset and length
+        		m2 = new Pair<Integer, Integer>(
+        				seqOffset, seqLength);
+        		
+        		// Write the actual sequence to the file
+        		writeToFile(seq);
+        		
+        		// Create a the pair of memory handles 
+        		memoryHandles = new 
+        		    Pair<Pair<Integer, Integer>, Pair<Integer, Integer>>(m1, m2);
+        		
+        		// Finally, store the pair of memory handles pair 
+        		// at the calculated slot position
+        		hashTable.set(slotPos, memoryHandles);  // Should return null
+    		}
+    		// Handle case for when only seqId was inserted into a hole
+    		else if (!seqInserted)
+    		{       		
+                // file pointer should be updated after writing the sequence bytes
+        		// to the memory file.  Convert 2nd file pointer to sequence offset
+        		int seqOffset = (int)memFile.getFilePointer();
+        		
+        		// Create memory handle 2 containing sequence offset and length
+        		m2 = new Pair<Integer, Integer>(
+        				seqOffset, seqLength);
+        		
+        		// Write the actual sequence to the file
+        		writeToFile(seq);
+        		
+        		// Create a the pair of memory handles
+        		memoryHandles = new 
+        		    Pair<Pair<Integer, Integer>, Pair<Integer, Integer>>(m1, m2);
+        		
+        		// Finally, store the pair of memory handles pair 
+        		// at the calculated slot position
+        		hashTable.set(slotPos, memoryHandles);  // Should return null
+    		}
     	}
     		
     	/*
@@ -364,9 +550,72 @@ public class MemoryManager
     }
     
     /**
-     * 
-     * @param oldPos
-     * @param seqNeeded
+     * Helper method handles finding an empty index within the correct bucket
+     * in the hash table.
+     * @param seq the sequence which the slot index will be based off of
+     * @return slotIndex if an empty slot was found within the bucket, 
+     * otherwise -1 will be returned signifying a failure to find a valid slot
+     */
+    private int collisionResolutionPolicy(String seq)
+    {
+		// Compute index of slot where the two memory handles will be 
+		// stored.  Type cast to integer because anything greater than
+		// integer max will be out of range
+	    int slotIndex = (int)sfold(seq, hashTableSize);
+	    
+    	// Get the pair at the position in hash table
+    	Pair<Pair<Integer, Integer>, Pair<Integer, Integer>> currSlotPair =
+    			hashTable.get((int) slotIndex);
+		
+    	// If the slot is not available, execute the 
+    	// linear collision resolution policy
+    	if (currSlotPair == null)
+    	{
+    		return slotIndex;
+    	}
+    	
+    	// Create variables to help track which 
+    	// indices were checked in the bucket
+    	boolean emptySlotFound = false;
+    	int startIndex = (slotIndex / bucketSize) * bucketSize;  
+    	int endIndex = ((slotIndex / bucketSize) + 1) * bucketSize;
+    	int initialSlotIndex = slotIndex;
+    	
+    	// Linearly loop through and around the bucket 
+    	// until an empty slot is found
+    	while (!emptySlotFound)
+    	{
+    		// Check the next slot index
+    		slotIndex++;
+    		
+    		// All slots are full in the bucket
+    		if (slotIndex == initialSlotIndex)
+    		{
+    			slotIndex = -1;
+    			break;
+    		}
+    		
+    		// Loop around to beginning if end of the bucket is reached
+    		if (slotIndex >= endIndex)
+    		{
+    			slotIndex = startIndex;
+    		}
+    		
+        	// Get the pair at the position in hash table
+        	currSlotPair = hashTable.get((int) slotIndex);
+    		
+        	if (currSlotPair == null)
+        	{
+        		return slotIndex;
+        	}
+    	}
+    	return slotIndex;
+    }
+    
+    /**
+     * Helper method for remove
+     * @param oldPos is the slot position which was not empty
+     * @param seqNeeded sequence needing to be inserted
      * @return
      */
     private long findCorrect(long oldPos, String seqNeeded)
@@ -377,23 +626,23 @@ public class MemoryManager
     	long newPos = -1;
     	
     	// set and starting and ending index for the bucket
-    	int start = (int) oldPos / 32;
+    	int start = (int)oldPos / bucketSize;
     	int end = start + 1;
     	
     	// remember original old position to use for conclusion of search
     	long vOldPos = oldPos;
     	
     	// shift to set to correct bucket positioning
-    	start *= 32;
-    	end *= 32;
+    	start *= bucketSize;
+    	end *= bucketSize;
     	
-    	while(!isFound)
+    	while (!isFound)
     	{
     		// check a new hash entry
     		oldPos += 1;
     		
     		// if reach end of bucket, loop back to beginning
-    		if (oldPos > end)
+    		if (oldPos >= end)
     		{
     			oldPos = start;
     		}

@@ -58,15 +58,24 @@ public class DnaParse extends Parse
                        	// Project 4 instructions specified not to worry 
                        	// about accounting for syntax errors, so it is 
                        	// safe to get the next line which is the sequence
-                       	long sequenceLength = 
-                    			Long.parseLong(listedLine.get(2));
+                       	int sequenceLength = 
+                    			Integer.parseInt(listedLine.get(2));
                         List<String> nextLineAsList = 
                             		lineAsList(inFileStream.nextLine().trim());
                        	String sequence = nextLineAsList.get(0); 
                         	
                         // Off-load work to helper method
-                       	mManager.insert(seqId, sequence, sequenceLength);
-                       	//handleInsert(seqId, sequence, sequenceLength);
+                       	try
+                       	{
+                           	mManager.insert(seqId, sequence, sequenceLength);
+                           	// handleInsert(seqId, sequence, sequenceLength);
+                       	}
+                        catch (IOException err)
+                       	{
+                        	System.err.println("ERROR: "
+                        			+ "Caught IOException during insert.");
+                            err.printStackTrace();
+                       	}
                     }
                     // Case remove
                     else if (listedLine.size() == 2 && 
@@ -100,7 +109,7 @@ public class DnaParse extends Parse
         catch (FileNotFoundException err)
         {
             // Print a custom error along with the stack trace
-            System.out.println("ERR" + this.getFileName() + " not found");
+            System.out.println("ERROR: " + this.getFileName() + " not found");
             err.printStackTrace();
         }
         return true;  // successful run of parse
