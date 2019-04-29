@@ -90,11 +90,6 @@ public class DnaParse extends Parse
                     {
                     	dMain.search(listedLine.get(1));
                     }
-                    else if (listedLine.size() == 2 && 
-                    		listedLine.get(0).equalsIgnoreCase("search"))
-                    {
-                    	
-                    }
                     else if (listedLine.size() == 1 && 
                     		listedLine.get(0).equalsIgnoreCase("print"))
                     {
