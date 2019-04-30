@@ -291,7 +291,6 @@ public class MemoryManager
 			System.err.println("Error: " + e.getLocalizedMessage());
 		}
     	return foundLine;
-    	
     }
     
     /**

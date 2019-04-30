@@ -8,16 +8,14 @@ import java.util.ArrayList;
  * @param <K>
  * @param <V>
  */
-public class HashTableDna<K, V> implements HashTable<K, V> {
-
-	
-	
+public class HashTableDna<K, V> implements HashTable<K, V> 
+{
     /**
      * Private hashTable to track the memory handles
      * M1 should be the handle to sequence ID (offset and length)
      * M2 should be the handle to the actual sequence (offset and length)
      */
-    private Pair<Pair<Long,Long>, Pair<Long, Long>>[] hashTable;
+    private Pair<Pair<Long,Long>, Pair<Long, Long>> [] hashTable;
     
     /**
      * 
@@ -28,6 +26,11 @@ public class HashTableDna<K, V> implements HashTable<K, V> {
      * 
      */
     private long hashTableSize;
+    
+    /**
+     * 
+     */
+    private int bucketSize = 32;
     
 	/**
 	 * Default Constructor
@@ -47,13 +50,19 @@ public class HashTableDna<K, V> implements HashTable<K, V> {
 	 */
 	public boolean contains(String seqId)
 	{
+		long hashPos = getsFold(seqId);
 		return false;
 	}
-
+    
+	/**
+	 * Overrides the interface provided by the HashTable.java file
+	 * @param key : Should be the sequence ID as (as string)
+	 * @param value : Should be the actual sequence (as string)
+	 */
 	@Override
-	public void insert(K key, V value) 
+	public void insert(K key, V value)
 	{
-		// get positioning using the sfold function
+		// Get positioning using the sfold function
 		long hashPosition = sfold((String)key, (int)hashTableSize);
 		
 		// check if slot is available
@@ -66,10 +75,74 @@ public class HashTableDna<K, V> implements HashTable<K, V> {
 		// else call collision resolution
 		else
 		{
+			// Execute collision resolution policy to find the correct position
+			int adjustedHashPosition = collisionResolutionPolicy((String)key);
 			
+			// Validity check for the hash position
+			if (adjustedHashPosition < 0)
+			{
+				return;  // Fails
+			}
+			
+			// Set memory handles to the correct slot index in the hash table
+			hashTable[adjustedHashPosition] = 
+					(Pair<Pair<Long, Long>, Pair<Long, Long>>) value;
 		}
-		
 	}
+	
+    /**
+     * 
+     * @param oldPos
+     * @param seqNeeded
+     * Helper method handles finding an empty index within the correct bucket
+     * in the hash table.
+     * @param seq the sequence which the slot index will be based off of
+     * @return slotIndex if an empty slot was found within the bucket, 
+     * otherwise -1 will be returned signifying a failure to find a valid slot
+     */
+    private int collisionResolutionPolicy(String seq)
+    {
+		// This index will be occupied which is what this function will resolve
+		long slotIndex = getsFold(seq);
+
+    	// Create variables to help track which 
+    	// indices were checked in the bucket
+    	boolean emptySlotFound = false;
+    	int startIndex = ((int)slotIndex / bucketSize) * bucketSize;  
+    	int endIndex = (((int)slotIndex / bucketSize) + 1) * bucketSize;
+    	int initialSlotIndex = (int)slotIndex;
+    	Pair<Pair<Long, Long>, Pair<Long, Long>> currSlotPair; 
+
+    	// Linearly loop through and around the bucket 
+    	// until an empty slot is found
+    	while (!emptySlotFound)
+    	{
+    		// Check the next slot index
+    		slotIndex++;
+
+    		// All slots are full in the bucket
+    		if (slotIndex == initialSlotIndex)
+    		{
+    			slotIndex = -1;
+    			break;
+    		}
+
+    		// Loop around to beginning if end of the bucket is reached
+    		if (slotIndex >= endIndex)
+    		{
+    			slotIndex = startIndex;
+    		}
+
+        	// Get the pair at the position in hash table
+        	currSlotPair = hashTable[(int) slotIndex];
+
+        	if (currSlotPair == null)
+        	{
+        		return (int)slotIndex;
+        	}
+    	}
+    	return (int)slotIndex;
+    }
 
 	@Override
 	public V search(K key) 
@@ -121,7 +194,6 @@ public class HashTableDna<K, V> implements HashTable<K, V> {
     		System.out.println("No sequence found using sequenceID: " + (String) key);
     		return null;
     	}
-    	
 
 		return (V) currHashPos;
 	}
