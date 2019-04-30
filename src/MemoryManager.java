@@ -1,4 +1,5 @@
 import java.io.*;
+import java.nio.ByteBuffer;
 import java.util.*;
 
 /**
@@ -189,10 +190,107 @@ public class MemoryManager
     	byte[] result = new byte[length];
     	
     	// a lot more code is needed here!
+    	int arrayIndex = 0;
+    	// check each char in the seqID and insert correct bytes into array
+    	// go for the length of the string
+    	for (int i = 0; i < convertThis.length(); i++)
+    	{
+    		char currChar = convertThis.charAt(i);
+    		if (currChar == 'A')
+    		{
+    			result[arrayIndex] = 0;
+    			arrayIndex++;
+    			result[arrayIndex] = 0;
+    			arrayIndex++;
+    		}
+    		else if (currChar == 'C')
+    		{
+    			result[arrayIndex] = 0;
+    			arrayIndex++;
+    			result[arrayIndex] = 1;
+    			arrayIndex++;
+    		}
+    		else if (currChar == 'G')
+    		{
+    			result[arrayIndex] = 1;
+    			arrayIndex++;
+    			result[arrayIndex] = 0;
+    			arrayIndex++;
+    		}
+    		else if (currChar == 'T')
+    		{
+    			result[arrayIndex] = 1;
+    			arrayIndex++;
+    			result[arrayIndex] = 1;
+    			arrayIndex++;
+    		}
+    	}
+    	
+    	// check that the byte array is full
+    	if (arrayIndex < length)
+    	{
+    		// if not, fill rest of array with 0
+    		for(int i = arrayIndex; i <= length; i++)
+    		{
+    			result[i] = 0;
+    		}
+    	}
+    	// else byte array is full and no filler is needed
     	
     	return result;
     }
     
+    /**
+     * 
+     * @param convertThis
+     * @return
+     */
+    private String byteToString(byte[] convertThis)
+    {
+    	String result = "";
+    	int numOfChars = convertThis.length/2;
+    	
+    	// loop through length of array and convert to string
+    	byte[] tempArray = new byte[2];
+    	for (int i =0; i < numOfChars; i++)
+    	{
+    		if (i <= numOfChars)
+    		{
+    			tempArray[0] = convertThis[i*2];
+    			tempArray[1] = convertThis[i*2+1];
+    			result += byteToStringHelper(tempArray);
+    		}
+    	}
+    	return result;
+    }
+    
+    
+    private Character byteToStringHelper(byte[] tempBytes)
+    {
+    	
+    	if (tempBytes[0] == (byte)0)
+    	{
+    		if (tempBytes[1] == (byte)0)
+    		{
+    			return 'A';
+    		}
+    		else
+    		{
+    			return 'C';
+    		}
+    	}
+    	else
+    	{
+    		if (tempBytes[1] == (byte)0)
+    		{
+    			return 'G';
+    		}
+    		else
+    		{
+    			return 'T';
+    		}
+    	}
+    }
     /**
      * Function used to check if there is space in the
      * linked list for byte array passed in

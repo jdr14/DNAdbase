@@ -110,16 +110,4 @@ public class DnaParse extends Parse
         return true;  // successful run of parse
 	}  // End Parse main
 	
-	/**
-	 * Handles the passing of 
-	 * @param seqId
-	 * @param seq
-	 * @param seqLength
-	 */
-    private void handleInsert(String seqId, String seq, long seqLength)
-    {
-    	// Create the 
-    	Pair<Long, String> m1 = 
-    			new Pair<Long, String>((long) seqId.length(), seqId);
-    }
 }
