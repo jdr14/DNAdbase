@@ -194,6 +194,10 @@ public class HashTableDna<K, V> implements HashTable<K, V>
     		System.out.println("No sequence found using sequenceID: " + (String) key);
     		return null;
     	}
+    	
+    	// set flag for tomb stone. Sequence ID length value will be
+    	// -1 indicating that something used to be here
+    	currHashPos.getKey().setValue((long)-1);
 
 		return (V) currHashPos;
 	}
