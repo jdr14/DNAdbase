@@ -185,6 +185,60 @@ public class MemoryManager
     	byte[] result = new byte[length];
     	
     	// a lot more code is needed here!
+    	int arrayIndex = 0;
+    	// check each char in the seqID and insert correct bytes into array
+    	// go for the length of the string
+    	for (int i = 0; i < convertThis.length(); i++)
+    	{
+    		char currChar = convertThis.charAt(i);
+    		if (currChar == 'A')
+    		{
+    			result[arrayIndex] = 0;
+    			arrayIndex++;
+    			result[arrayIndex] = 0;
+    			arrayIndex++;
+    		}
+    		else if (currChar == 'C')
+    		{
+    			result[arrayIndex] = 0;
+    			arrayIndex++;
+    			result[arrayIndex] = 1;
+    			arrayIndex++;
+    		}
+    		else if (currChar == 'G')
+    		{
+    			result[arrayIndex] = 1;
+    			arrayIndex++;
+    			result[arrayIndex] = 0;
+    			arrayIndex++;
+    		}
+    		else if (currChar == 'T')
+    		{
+    			result[arrayIndex] = 1;
+    			arrayIndex++;
+    			result[arrayIndex] = 1;
+    			arrayIndex++;
+    		}
+    	}
+    	
+    	// check that the byte array is full
+    	if (arrayIndex < length)
+    	{
+    		// if not, fill rest of array with 0
+    		for(int i = arrayIndex; i <= length; i++)
+    		{
+    			result[i] = 0;
+    		}
+    	}
+    	// else byte array is full and no filler is needed
+    	
+    	return result;
+    }
+    
+    private String byteToString(byte[] convertThis)
+    {
+    	String result = "";
+    	int lengthOfArray = convertThis.length;
     	
     	return result;
     }

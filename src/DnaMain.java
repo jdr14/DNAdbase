@@ -91,6 +91,7 @@ public class DnaMain {
 		if(mDna.search(seqToRemove, hashEntry.getKey().getKey()))
 		{
 			mDna.remove(hashEntry);
+			// remove from hash table as well
 		}
 		// else start checking around in the bucket
 		else
@@ -103,11 +104,13 @@ public class DnaMain {
 			if (correctPosition == -1)
 			{
 				// throw remove error error
+				System.err.println("Sequcnce ID " + seqToRemove + " does not exist.");
 			}
 			// update hashEntry variable
 			hashEntry = dnaHash.get((int) correctPosition);
 			// remove correct entry
 			mDna.remove(hashEntry);
+			// remove from hash table as well
 		}
 					
 	}
@@ -139,6 +142,7 @@ public class DnaMain {
 			if (correctPosition == -1)
 			{
 				// throw search error
+				System.err.println("Sequence ID " + seqToFind + " does not exist.");
 			}
 			
 			// update hashEntry variable
