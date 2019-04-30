@@ -185,12 +185,23 @@ public class MemoryManager
      */
     private byte[] stringToByte(String convertThis)
     {
-    	int length = (int) Math.ceil((double)convertThis.length());
-    	
-    	byte[] result = new byte[length];
+    	BitSet b1;
+    	boolean mult4 = (convertThis.length() % 4) == 0;
+    	if (mult4)
+    	{
+    		// Allocate 2 bits per letter
+    		b1 = new BitSet(convertThis.length() * 2);
+    	}
+    	else  // not multiple of 4
+    	{
+    		int numLetters = (convertThis.length() / 4) + 1;
+    		b1 = new BitSet(numLetters * 2);
+    	}
+    	// int length = (int) Math.ceil((double)convertThis.length() / 4.0);
+    	//byte[] result = new byte[length];
     	
     	// a lot more code is needed here!
-    	int arrayIndex = 0;
+    	//int arrayIndex = 0;
     	// check each char in the seqID and insert correct bytes into array
     	// go for the length of the string
     	for (int i = 0; i < convertThis.length(); i++)
@@ -198,46 +209,27 @@ public class MemoryManager
     		char currChar = convertThis.charAt(i);
     		if (currChar == 'A')
     		{
-    			result[arrayIndex] = 0;
-    			arrayIndex++;
-    			result[arrayIndex] = 0;
-    			arrayIndex++;
+    		    b1.set(2 * i, 0);
+    		    b1.set((2 * i) + 1, 0);
     		}
     		else if (currChar == 'C')
     		{
-    			result[arrayIndex] = 0;
-    			arrayIndex++;
-    			result[arrayIndex] = 1;
-    			arrayIndex++;
+    		    b1.set(2 * i, 0);
+    		    b1.set((2 * i) + 1, 1);
     		}
     		else if (currChar == 'G')
     		{
-    			result[arrayIndex] = 1;
-    			arrayIndex++;
-    			result[arrayIndex] = 0;
-    			arrayIndex++;
+    		    b1.set(2 * i, 1);
+    		    b1.set((2 * i) + 1, 0);
     		}
     		else if (currChar == 'T')
     		{
-    			result[arrayIndex] = 1;
-    			arrayIndex++;
-    			result[arrayIndex] = 1;
-    			arrayIndex++;
+    		    b1.set(2 * i, 1);
+    		    b1.set((2 * i) + 1, 1);
     		}
     	}
     	
-    	// check that the byte array is full
-    	if (arrayIndex < length)
-    	{
-    		// if not, fill rest of array with 0
-    		for(int i = arrayIndex; i <= length; i++)
-    		{
-    			result[i] = 0;
-    		}
-    	}
-    	// else byte array is full and no filler is needed
-    	
-    	return result;
+    	return b1.toByteArray();
     }
     
     /**
@@ -252,12 +244,12 @@ public class MemoryManager
     	
     	// loop through length of array and convert to string
     	byte[] tempArray = new byte[2];
-    	for (int i =0; i < numOfChars; i++)
+    	for (int i = 0; i < numOfChars; i++)
     	{
     		if (i <= numOfChars)
     		{
-    			tempArray[0] = convertThis[i*2];
-    			tempArray[1] = convertThis[i*2+1];
+    			tempArray[0] = convertThis[i * 2];
+    			tempArray[1] = convertThis[i * 2 + 1];
     			result += byteToStringHelper(tempArray);
     		}
     	}
@@ -521,3 +513,116 @@ public class MemoryManager
     }
     
 }
+
+
+
+// ACTIVE TESTING FOR BITSETS BELOW!!! 
+
+
+/*
+public class Main
+{
+    public static void main(String[] args)
+{
+    p parse = new p();
+    String s = "ACGTCGA";
+    
+    byte[] b = parse.stringToByte(s);
+    System.out.println(b.length);
+   
+    String n = parse.byteToString(b);
+    System.out.println(n);
+}
+}
+
+import java.util.*;
+
+public class p
+{
+    public byte[] stringToByte(String convertThis)
+    {
+    	BitSet b1;
+    	boolean mult4 = (convertThis.length() % 4) == 0;
+
+    	b1 = new BitSet(convertThis.length() * 2);
+    	System.out.println(b1.length());
+    	// int length = (int) Math.ceil((double)convertThis.length() / 4.0);
+    	//byte[] result = new byte[length];
+    	
+    	// a lot more code is needed here!
+    	//int arrayIndex = 0;
+    	// check each char in the seqID and insert correct bytes into array
+    	// go for the length of the string
+    	for (int i = 0; i < convertThis.length(); i++)
+    	{
+    		char currChar = convertThis.charAt(i);
+    		if (currChar == 'A')  // 00
+    		{
+
+    		}
+    		else if (currChar == 'C')  // 01
+    		{
+    		    b1.set((2 * i) + 1);
+    		}
+    		else if (currChar == 'G')  // 10
+    		{
+    		    b1.set(2 * i);
+    		}
+    		else if (currChar == 'T')  // 11
+    		{
+    		    b1.set(2 * i);
+    		    b1.set((2 * i) + 1);
+    		}
+    	}
+    	
+    	return b1.toByteArray();
+    }
+    
+    public String byteToString(byte[] convertThis)
+    {
+    	String result = "";
+    	int numOfChars = convertThis.length/2;
+    	
+    	// loop through length of array and convert to string
+    	byte[] tempArray = new byte[2];
+    	for (int i = 0; i < numOfChars; i++)
+    	{
+    		if (i <= numOfChars)
+    		{
+    			tempArray[0] = convertThis[i * 2];
+    			tempArray[1] = convertThis[i * 2 + 1];
+    			result += byteToStringHelper(tempArray);
+    		}
+    	}
+    	return result;
+    }
+    
+    private Character byteToStringHelper(byte[] tempBytes)
+    {
+    	
+    	if (tempBytes[0] == (byte)0)
+    	{
+    		if (tempBytes[1] == (byte)0)
+    		{
+    			return 'A';
+    		}
+    		else
+    		{
+    			return 'C';
+    		}
+    	}
+    	else
+    	{
+    		if (tempBytes[1] == (byte)0)
+    		{
+    			return 'G';
+    		}
+    		else
+    		{
+    			return 'T';
+    		}
+    	}
+    }
+}
+
+*/
