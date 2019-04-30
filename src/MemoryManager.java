@@ -1,4 +1,5 @@
 import java.io.*;
+import java.nio.ByteBuffer;
 import java.util.*;
 
 /**
@@ -235,14 +236,57 @@ public class MemoryManager
     	return result;
     }
     
+    /**
+     * 
+     * @param convertThis
+     * @return
+     */
     private String byteToString(byte[] convertThis)
     {
     	String result = "";
-    	int lengthOfArray = convertThis.length;
+    	int numOfChars = convertThis.length/2;
     	
+    	// loop through length of array and convert to string
+    	byte[] tempArray = new byte[2];
+    	for (int i =0; i < numOfChars; i++)
+    	{
+    		if (i <= numOfChars)
+    		{
+    			tempArray[0] = convertThis[i*2];
+    			tempArray[1] = convertThis[i*2+1];
+    			result += byteToStringHelper(tempArray);
+    		}
+    	}
     	return result;
     }
     
+    
+    private Character byteToStringHelper(byte[] tempBytes)
+    {
+    	
+    	if (tempBytes[0] == (byte)0)
+    	{
+    		if (tempBytes[1] == (byte)0)
+    		{
+    			return 'A';
+    		}
+    		else
+    		{
+    			return 'C';
+    		}
+    	}
+    	else
+    	{
+    		if (tempBytes[1] == (byte)0)
+    		{
+    			return 'G';
+    		}
+    		else
+    		{
+    			return 'T';
+    		}
+    	}
+    }
     /**
      * Function used to check if there is space in the
      * linked list for byte array passed in
