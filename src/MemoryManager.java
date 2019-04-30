@@ -41,8 +41,6 @@ public class MemoryManager
      */
     private long intMaxAsLong = (long)Integer.MAX_VALUE;
     
-
-    
     /**
      * Constructor creates 
      * @param hashFileName
@@ -128,14 +126,17 @@ public class MemoryManager
     	if (spaceInList(arrayofId))
     	{
     		// if space available, place in list and save position
-    		posOfseqId = enplaceInList(arrayofId);
+    		posOfseqId = emplaceInList(arrayofId);
     	}
     	else
     	{
     		// else put seqId at the end of file
-    		try {
+    		try 
+    		{
 				posOfseqId = placeAtEndOfFile(arrayofId);
-			} catch (IOException e) {
+			} 
+    		catch (IOException e) 
+    		{
 				e.printStackTrace();
 			}
     	}
@@ -143,28 +144,31 @@ public class MemoryManager
     	// creation of the first entry in the pair to be returned
     	// second parameter might have to be length of string
     	Pair<Long, Long> bigKey = 
-    			new Pair<Long, Long>(posOfseqId, (long)arrayofId.length);
+    			new Pair<Long, Long>(posOfseqId, (long)seqId.length());  //(long)arrayofId.length);
     	
     	// case where space was found in list for the seq
     	// parameter of this function might be string
     	if (spaceInList(arrayofSeq))
     	{
     		// if space available, place in list and save position
-    		posOfSeq = enplaceInList(arrayofSeq);
+    		posOfSeq = emplaceInList(arrayofSeq);
     	}
     	else
     	{
     		// else put seq at end of file
-    		try {
+    		try 
+    		{
 				posOfSeq = placeAtEndOfFile(arrayofSeq);
-			} catch (IOException e) {
+			} 
+    		catch (IOException e) 
+    		{
 				e.printStackTrace();
 			}
     	}
     	// creation of the second entry in pair to be returned
     	// second parameter might have to be length of string
     	Pair<Long, Long> bigValue = 
-    			new Pair<Long, Long>(posOfSeq, (long)arrayofSeq.length);
+    			new Pair<Long, Long>(posOfSeq, (long)seq.length());  // (long)arrayofSeq.length);
     	
     	// set result to have the correct values calculated
     	result.setKey(bigKey);
@@ -197,6 +201,12 @@ public class MemoryManager
      */
     private boolean spaceInList(byte[] insertThis)
     {
+    	/*
+    	 Node should have pointer to file offset position as well as 
+    	 length of empty space that hole can fill
+    	 
+    	 if (insertThis.length <= 
+    	 */
     	return false;
     }
     
@@ -205,7 +215,7 @@ public class MemoryManager
      * @param insertThis
      * @return the position in the file of the seq/seqId
      */
-    private long enplaceInList(byte[] insertThis)
+    private long emplaceInList(byte[] insertThis)
     {
     	return 0;
     }

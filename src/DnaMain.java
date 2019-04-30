@@ -41,6 +41,11 @@ public class DnaMain {
 	private String memoryFileName;
 	
 	/**
+	 * 
+	 */
+	private int bucketSize = 32;
+	
+	/**
 	 * Default Constructor
 	 */
 	DnaMain(String c, String h, long s, String m)
@@ -77,6 +82,90 @@ public class DnaMain {
 		//entry in hash table
 		dnaHash.insert(seqId, fileResult);
 		
+	}
+	
+	
+	/**
+	 * 
+	 * @param seqId
+	 * @return true if insertion is possible
+	 */
+	public boolean contains(String seqId)
+	{
+		long hashPosition = dnaHash.getsFold(seqId);
+		
+		// check if slot is available
+		if (dnaHash.get((int)hashPosition) == null)
+		{
+			return false;
+		}
+		
+		boolean seqFound = false;
+		
+		int currHashIndex = (int)hashPosition;
+		int initialHashPos = (int)hashPosition;
+		
+    	int startIndex = ((int)hashPosition / bucketSize) * bucketSize;  
+    	int endIndex = (((int)hashPosition / bucketSize) + 1) * bucketSize;
+    	
+    	// Iterate through entire bucket in attempt to find seq ID
+    	while (!seqFound)
+    	{
+    		// Case tombstone position
+    		while (dnaHash.get(currHashIndex).getKey().getValue() < 0)
+    		{	
+            	currHashIndex++;
+            	
+    			if (currHashIndex >= endIndex)
+    			{
+    				currHashIndex = startIndex;
+    			}
+    			
+    			// Case where all tombstones were found in the bucket
+    			if (currHashIndex == initialHashPos)
+    			{
+    				return false;
+    			}
+    			
+    			if (dnaHash.get(currHashIndex) == null)
+    			{
+    				break;
+    			}
+    		}
+    		
+    		// Case null position
+    		while (dnaHash.get(currHashIndex) == null)
+    		{
+    			currHashIndex++;
+    			
+    			if (currHashIndex >= endIndex)
+    			{
+    				currHashIndex = startIndex;
+    			}
+    			
+    			if (currHashIndex == initialHashPos)
+    			{
+    				return false;
+    			}
+    		}
+    		
+    		// Case actual sequence is stored at that hash position
+    		while (dnaHash.get(currHashIndex).getKey().getValue() >= 0)
+    		{
+    			Pair<Pair<Long, Long>, Pair<Long, Long>> memHandles = 
+    					dnaHash.get(currHashIndex);
+    			
+    			if (memHandles.getKey().getValue() == (seqId.length()))
+    			{
+    				// Check the actual sequence stored on disk
+    				long fileOffset = memHandles.getKey().getKey();
+    				
+    				// TODO:  Unfinished
+    				break;
+    			}
+    		}
+    	}
+    	return false;
 	}
 	
 	/**
