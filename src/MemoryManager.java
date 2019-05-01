@@ -231,7 +231,7 @@ public class MemoryManager
      * @param convertThis
      * @return
      */
-    private String byteToString(byte[] convertThis)
+    private String byteToString(byte[] convertThis, int stringLength)
     {
     	String result = "";
     	BitSet bits1 = BitSet.valueOf(convertThis);
@@ -343,7 +343,7 @@ public class MemoryManager
      * Remove and return current element
      */
     public boolean remove (Pair<Pair<Long, Long>,
-    		Pair<Long, Long>> hashEntry) 
+    		Pair<Long, Long>> hashEntry, int length) 
     {
     	
 		// if correct, add entries to linked list of free spaces
@@ -361,10 +361,10 @@ public class MemoryManager
     	// this double checking needs to be done in all: insert,
     	// search, and remove
     	long seqPos1 = hashEntry.getKey().getValue();
-    	String seqToRemove = getDataFromFile(seqPos1);
+    	String seqToRemove = getDataFromFile(seqPos1, length);
     	System.out.println("Sequence Removed " + seqToRemove + ": ");
     	long seqPos = hashEntry.getValue().getValue();
-    	String seqFromFile = getDataFromFile(seqPos);
+    	String seqFromFile = getDataFromFile(seqPos, length);
     	System.out.println(seqFromFile);
         return true;
     }
@@ -373,13 +373,15 @@ public class MemoryManager
      * 
      * @param filePosition
      */
-    private String getDataFromFile(long filePosition)
+    private String getDataFromFile(long filePosition, int stringLength)
     {
     	String foundLine = "";
+    	byte[] tempArray = new byte [ (stringLength/4) + 1];
     	try 
     	{
 			memFile.seek(filePosition);
-			foundLine = memFile.readLine();
+			memFile.read(tempArray);
+			foundLine = byteToString(tempArray, stringLength);
 			return foundLine;
 		} 
     	catch (IOException e) 

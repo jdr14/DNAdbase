@@ -179,7 +179,7 @@ public class DnaMain {
 		// case where sequence is found in its correct spot
 		if(mDna.search(seqToRemove, hashEntry.getKey().getKey()))
 		{
-			mDna.remove(hashEntry);
+			mDna.remove(hashEntry, seqToRemove.length());
 			// remove from hash table as well
 		}
 		// else start checking around in the bucket
@@ -198,7 +198,7 @@ public class DnaMain {
 			// update hashEntry variable
 			hashEntry = dnaHash.get((int) correctPosition);
 			// remove correct entry
-			mDna.remove(hashEntry);
+			mDna.remove(hashEntry, seqToRemove.length());
 			// remove from hash table as well
 		}
 					
