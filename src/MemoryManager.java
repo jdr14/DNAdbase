@@ -179,19 +179,18 @@ public class MemoryManager
     }
     
     /**
-     * 
-     * @param convertThis
-     * @return
+     * Method for handling the conversion of string to a byte array as per the
+     * project 4 specification
+     * @param convertThis The name of the string to be converted into a 
+     * byte array
+     * @return Return byte array equivalent of the string passed in
      */
     public byte[] stringToByte(String convertThis)
     {
-    	BitSet b1;
-    	boolean mult4 = (convertThis.length() % 4) == 0;
-
-    	b1 = new BitSet(convertThis.length() * 2);
+        // Create a new for the conversion
+    	BitSet b1 = new BitSet(convertThis.length() * 2);
     	
-    	// check each char in the seqID and insert correct bytes into array
-    	// go for the length of the string
+    	// Check each char in the seqID and convert to corresponding bits
     	for (int i = 0; i < convertThis.length(); i++)
     	{
     		char currChar = convertThis.charAt(i);
@@ -225,8 +224,13 @@ public class MemoryManager
     
     /**
      * 
-     * @param convertThis
-     * @return
+     * @param convertThis The byte array needing to be converted back into
+     * its corresponding string.  Warning, if the original string sequence
+     * length is not a multiple of four, there will be 0 fill for between 
+     * 2 to 6 bits long. 
+     * @param strLength Needed to ignore the potential zero fill at the end
+     * of the byte array passed in
+     * @return the final conerted string built
      */
     public String byteToString(byte[] convertThis, int strLength)
     {
