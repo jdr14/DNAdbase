@@ -42,95 +42,6 @@ public class HashTableDna<K, V> implements HashTable<K, V>
 		// probably need to change this
 		hashTable = new Pair[(int) hashTableSize];
 	}
-	
-	/**
-	 * 
-	 * @param seqId
-	 * @return true if insertion is possible
-	 */
-	public boolean contains(String seqId)
-	{
-		long hashPosition = getsFold(seqId);
-		
-		// check if slot is available
-		if (hashTable[(int)hashPosition] == null)
-		{
-			return false;
-		}
-		
-		boolean seqFound = false;
-		
-		int currHashIndex = (int)hashPosition;
-		int initialHashPos = (int)hashPosition;
-		
-    	int startIndex = ((int)hashPosition / bucketSize) * bucketSize;  
-    	int endIndex = (((int)hashPosition / bucketSize) + 1) * bucketSize;
-    	
-    	// Iterate through entire bucket in attempt to find seq ID
-    	while (!seqFound)
-    	{
-    		// Case tombstone position
-    		while (hashTable[currHashIndex].getKey().getValue() < 0)
-    		{	
-            	currHashIndex++;
-            	
-    			if (currHashIndex >= endIndex)
-    			{
-    				currHashIndex = startIndex;
-    			}
-    			
-    			// Case where all tombstones were found in the bucket
-    			if (currHashIndex == initialHashPos)
-    			{
-    				return false;
-    			}
-    			
-    			if (hashTable[currHashIndex] == null)
-    			{
-    				break;
-    			}
-    		}
-    		
-    		// Case null position
-    		while (hashTable[currHashIndex] == null)
-    		{
-    			currHashIndex++;
-    			
-    			if (currHashIndex >= endIndex)
-    			{
-    				currHashIndex = startIndex;
-    			}
-    			
-    			if (currHashIndex == initialHashPos)
-    			{
-    				return false;
-    			}
-    		}
-    		
-    		// Case actual sequence is stored at that hash position
-    		while (hashTable[currHashIndex].getKey().getValue() >= 0)
-    		{
-    			Pair<Pair<Long, Long>, Pair<Long, Long>> memHandles = 
-    					hashTable[currHashIndex];
-    			
-    			if (memHandles.getKey().getValue() == (seqId.length()))
-    			{
-    				// Check the actual sequence stored on disk
-    				long fileOffset = memHandles.getKey().getKey();
-    			}
-    		}
-    	}
-		// Case tombstone
-		// else if (hashTable[(int)hashPosition].getKey().getValue() < 0)
-
-		// else call collision resolution
-//		else
-//		{
-//			// Execute collision resolution policy to find the correct position
-//			int adjustedHashPosition = collisionResolutionPolicy((String)key);
-//		}
-		return false;
-	}
     
 	/**
 	 * Overrides the interface provided by the HashTable.java file
@@ -138,8 +49,9 @@ public class HashTableDna<K, V> implements HashTable<K, V>
 	 * @param value : Should be the actual sequence (as string)
 	 */
 	@Override
-	public void insert(K key, V value)
+	public String insert(K key, V value)
 	{
+		String result;
 		// Get positioning using the sfold function
 		long hashPosition = sfold((String)key, (int)hashTableSize);
 		
@@ -159,13 +71,16 @@ public class HashTableDna<K, V> implements HashTable<K, V>
 			// Validity check for the hash position
 			if (adjustedHashPosition < 0)
 			{
-				return;  // Fails
+				return null;  // Fails
 			}
 			
 			// Set memory handles to the correct slot index in the hash table
 			hashTable[adjustedHashPosition] = 
 					(Pair<Pair<Long, Long>, Pair<Long, Long>>) value;
 		}
+		
+		result = (String)key + ": hash value [" + hashPosition + "]";
+		return result;
 	}
 	
     /**

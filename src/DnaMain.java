@@ -45,6 +45,8 @@ public class DnaMain {
 	 */
 	private int bucketSize = 32;
 	
+	private ArrayList<String> resultList;
+	
 	/**
 	 * Default Constructor
 	 */
@@ -54,6 +56,7 @@ public class DnaMain {
 		hashFileName = h;
 		hashTableSize = s;
 		memoryFileName = m;
+		resultList = new ArrayList<String>();
 		mDna = new MemoryManager(m);
 		dnaHash = new HashTableDna<String, 
 				Pair<Pair<Long, Long>, Pair<Long, Long>>>(h, s);
@@ -65,10 +68,10 @@ public class DnaMain {
 	public void insert(String seqId, String sequence, int seqLength)
 	{
 		// check if the insertion was valid
-		if (!dnaHash.contains(seqId))
+		if (contains(seqId))
 		{
 			// if not, print error message and return
-			System.err.println("Sequence " + seqId + "already exists!");
+			System.err.println("Sequence " + seqId + " already exists!");
 			return;
 		}
 		// else continue down the code and insert into memFile
@@ -78,9 +81,17 @@ public class DnaMain {
 		Pair<Pair<Long, Long>, Pair<Long, Long>> fileResult = 
 				mDna.insert(seqId, sequence);
 		
+		
 		// use sequenceId and result from memory insert to create
 		//entry in hash table
-		dnaHash.insert(seqId, fileResult);
+		String insertResult = dnaHash.insert(seqId, fileResult);
+		if (insertResult == null)
+		{
+			System.err.println("Inserting sequenceID " + seqId + " failed.");
+			return;
+		}
+		resultList.add(insertResult);
+		printResult();
 		
 	}
 	
@@ -201,6 +212,8 @@ public class DnaMain {
 			mDna.remove(hashEntry, seqToRemove.length());
 			// remove from hash table as well
 		}
+		
+		printResult();
 					
 	}
 	
@@ -308,5 +321,17 @@ public class DnaMain {
     	}
     	
     	return newPos;
+    }
+    
+    private void printResult()
+    {
+    	System.out.println("SequenceIDs: ");
+    	for (int i = 0; i < resultList.size(); i++)
+    	{
+    		System.out.println(resultList.get(i));
+    	}
+    	System.out.println("Free Block List: none");
+//    	if ()
+    	
     }
 }
