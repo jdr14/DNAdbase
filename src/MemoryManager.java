@@ -379,7 +379,7 @@ public class MemoryManager
     public boolean search(String seqId, long seqIdPos)
     {	
         // check if sequence ID is same
-    	String fromFile = getDataFromFile((long) seqIdPos);
+    	String fromFile = getDataFromFile((long) seqIdPos, seqId.length());
     	
     	
     	// case where seqID does not match, need to find correct value
@@ -391,9 +391,9 @@ public class MemoryManager
      * 
      * @param seqPos
      */
-    public void printSeq(long seqPos)
+    public void printSeq(long seqPos, int length)
     {
-    	String seqFromFile = getDataFromFile((long) seqPos);
+    	String seqFromFile = getDataFromFile((long) seqPos, length);
     	System.out.println("Sequence Found: " + seqFromFile);
     }
     

@@ -218,7 +218,7 @@ public class DnaMain {
 		{
 			// just print the sequence found at the offset
 			// of the second pair
-			mDna.printSeq(hashEntry.getValue().getKey());
+			mDna.printSeq(hashEntry.getValue().getKey(), seqToFind.length());
 		}
 		// else start checking around in the bucket
 		else
@@ -237,7 +237,7 @@ public class DnaMain {
 			// update hashEntry variable
 			hashEntry = dnaHash.get((int) correctPosition);
 			// print out correct sequence
-			mDna.printSeq(hashEntry.getValue().getKey());
+			mDna.printSeq(hashEntry.getValue().getKey(), seqToFind.length());
 		}
 		
 	}
