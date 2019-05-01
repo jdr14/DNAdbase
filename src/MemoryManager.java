@@ -197,13 +197,7 @@ public class MemoryManager
     		int numLetters = (convertThis.length() / 4) + 1;
     		b1 = new BitSet(numLetters * 2);
     	}
-    	// int length = (int) Math.ceil((double)convertThis.length() / 4.0);
-    	//byte[] result = new byte[length];
-    	
-    	// a lot more code is needed here!
-    	//int arrayIndex = 0;
-    	// check each char in the seqID and insert correct bytes into array
-    	// go for the length of the string
+
     	for (int i = 0; i < convertThis.length(); i++)
     	{
     		char currChar = convertThis.charAt(i);
@@ -240,7 +234,9 @@ public class MemoryManager
     private String byteToString(byte[] convertThis)
     {
     	String result = "";
-    	int numOfChars = convertThis.length/2;
+    	BitSet bits1 = BitSet.valueOf(convertThis);
+    	int length = bits1.length();
+    	int numOfChars = length/4;
     	
     	// loop through length of array and convert to string
     	byte[] tempArray = new byte[2];

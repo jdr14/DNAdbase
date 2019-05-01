@@ -124,11 +124,11 @@ public class HashTableDna<K, V> implements HashTable<K, V>
 		// else if (hashTable[(int)hashPosition].getKey().getValue() < 0)
 
 		// else call collision resolution
-		else
-		{
-			// Execute collision resolution policy to find the correct position
-			int adjustedHashPosition = collisionResolutionPolicy((String)key);
-		}
+//		else
+//		{
+//			// Execute collision resolution policy to find the correct position
+//			int adjustedHashPosition = collisionResolutionPolicy((String)key);
+//		}
 		return false;
 	}
     
