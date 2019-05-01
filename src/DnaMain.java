@@ -171,8 +171,25 @@ public class DnaMain {
     				// Check the actual sequence stored on disk
     				long fileOffset = memHandles.getKey().getKey();
     				
-    				// TODO:  Unfinished
-    				break;
+    				String Sid = mDna.getDataFromFile(fileOffset, 
+    						seqId.length());
+    				
+    				if (Sid.equals(seqId))
+    				{
+    					return true;
+    				}
+    				
+    				currHashIndex++;
+    				
+    				if (dnaHash.get(currHashIndex) == null)
+    				{
+    					break;
+    				}
+    				
+    				if (currHashIndex == startIndex)
+    				{
+    					return false;
+    				}
     			}
     		}
     	}
@@ -207,7 +224,21 @@ public class DnaMain {
 				System.err.println("Sequcnce ID " + seqToRemove + " does not exist.");
 			}
 			// update hashEntry variable
-			hashEntry = dnaHash.get((int) correctPosition);
+			try
+			{
+				hashEntry = dnaHash.get((int) correctPosition);
+			}
+			catch (ArrayIndexOutOfBoundsException e)
+			{
+				// TODO:  Double check that this is the best way to handle 
+				// this corner case
+				// Error with trying to access an index out of bounds
+				// of the hash table
+				System.err.println(e);
+			    System.out.println("Remove unsuccessful");
+				return;
+			}
+			
 			// remove correct entry
 			mDna.remove(hashEntry, seqToRemove.length());
 			// remove from hash table as well

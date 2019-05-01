@@ -358,7 +358,7 @@ public class MemoryManager
      * 
      * @param filePosition
      */
-    private String getDataFromFile(long filePosition, int stringLength)
+    public String getDataFromFile(long filePosition, int stringLength)
     {
     	String foundLine = "";
     	byte[] tempArray = new byte [ (stringLength/4) + 1];

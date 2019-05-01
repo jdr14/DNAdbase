@@ -200,8 +200,14 @@ public class HashTableDna<K, V> implements HashTable<K, V>
 	 * @param position
 	 * @return
 	 */
-	public V get(int position)
+	public V get(int position) throws ArrayIndexOutOfBoundsException
 	{
+		if (position >= hashTableSize)
+		{
+			// TODO: Unsure if printing is necessary here
+			throw new ArrayIndexOutOfBoundsException("Error: trying to access"
+					+ " index greater than hash table size");
+		}
 		return (V) hashTable[position];
 	}
 	
