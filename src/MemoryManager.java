@@ -515,6 +515,117 @@ public class MemoryManager
 }
 
 
+/*
+public byte[] stringToByte(String convertThis)
+    {
+    	BitSet b1;
+    	boolean mult4 = (convertThis.length() % 4) == 0;
+    	
+    	b1 = new BitSet(convertThis.length() * 2);
+    	//System.out.println(b1.length());
+    	// int length = (int) Math.ceil((double)convertThis.length() / 4.0);
+    	//byte[] result = new byte[length];
+    	
+    	// a lot more code is needed here!
+    	//int arrayIndex = 0;
+    	// check each char in the seqID and insert correct bytes into array
+    	// go for the length of the string
+    	for (int i = 0; i < convertThis.length(); i++)
+    	{
+    		char currChar = convertThis.charAt(i);
+    		if (currChar == 'A')  // 00
+    		{
+
+    		}
+    		else if (currChar == 'C')  // 01
+    		{
+    		    b1.set((2 * i) + 1);
+    		}
+    		else if (currChar == 'G')  // 10
+    		{
+    		    b1.set(2 * i);
+    		}
+    		else if (currChar == 'T')  // 11
+    		{
+    		    b1.set(2 * i);
+    		    b1.set((2 * i) + 1);
+    		}
+    	}
+    	
+    	for (int i = 0; i < b1.length(); i++)
+    	{
+    	    System.out.print(b1.get(i));
+    	}
+    	
+    	return b1.toByteArray();
+    }
+    
+    public String byteToString(byte[] convertThis, int strLength)
+    {
+    	String result = "";
+    	//System.out.println(convertThis.length);
+    	//int numOfChars = convertThis.length * 4;
+    	
+    	BitSet b1 = BitSet.valueOf(convertThis);//new BitSet(numchars * 2);
+    	
+    	// loop through length of array and convert to string
+    	byte[] tempArray = new byte[2];
+    	for (int i = 0; i < strLength; i++)
+    	{
+    		if (i <= strLength)
+    		{
+    			//b1[0] = convertThis[i * 2];
+    			//b1[1] = convertThis[i * 2 + 1];
+    			
+    			if (b1.get(i * 2) == false && b1.get(i * 2 + 1) == false)  // 00 (A)
+    			{
+    			    result += 'A';
+    			}
+    			else if (b1.get(i * 2) == false && b1.get(i * 2 + 1) == true)  // 01 (C)
+    			{
+    			    result += 'C';
+    			}
+    			else if (b1.get(i * 2) == true && b1.get(i * 2 + 1) == false)  // 10 (G)
+    			{
+    			    result += 'G';
+    			}
+    			else if (b1.get(i * 2) == true && b1.get(i * 2 + 1) == true)  // 11 (T)
+    			{
+    			    result += 'T';
+    			}
+    		}
+    	}
+    	return result;
+    }
+    
+    private Character byteToStringHelper(byte[] tempBytes)
+    {
+    	
+    	if (tempBytes[0] == (byte)0)
+    	{
+    		if (tempBytes[1] == (byte)0)
+    		{
+    			return 'A';
+    		}
+    		else
+    		{
+    			return 'C';
+    		}
+    	}
+    	else
+    	{
+    		if (tempBytes[1] == (byte)0)
+    		{
+    			return 'G';
+    		}
+    		else
+    		{
+    			return 'T';
+    		}
+    	}
+    }
+ */
+
 
 // ACTIVE TESTING FOR BITSETS BELOW!!! 
 
