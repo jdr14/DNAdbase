@@ -181,48 +181,45 @@ public class MemoryManager
     /**
      * 
      * @param convertThis
-     * @return the byte array of the string given
+     * @return
      */
-    private byte[] stringToByte(String convertThis)
+    public byte[] stringToByte(String convertThis)
     {
     	BitSet b1;
     	boolean mult4 = (convertThis.length() % 4) == 0;
-    	if (mult4)
-    	{
-    		// Allocate 2 bits per letter
-    		b1 = new BitSet(convertThis.length() * 2);
-    	}
-    	else  // not multiple of 4
-    	{
-    		int numLetters = (convertThis.length() / 4) + 1;
-    		b1 = new BitSet(numLetters * 2);
-    	}
 
+    	b1 = new BitSet(convertThis.length() * 2);
+    	
+    	// check each char in the seqID and insert correct bytes into array
+    	// go for the length of the string
     	for (int i = 0; i < convertThis.length(); i++)
     	{
     		char currChar = convertThis.charAt(i);
-    		if (currChar == 'A')
+    		if (currChar == 'A')  // 00
     		{
-    		    b1.set(2 * i, 0);
-    		    b1.set((2 * i) + 1, 0);
+
     		}
-    		else if (currChar == 'C')
+    		else if (currChar == 'C')  // 01
     		{
-    		    b1.set(2 * i, 0);
-    		    b1.set((2 * i) + 1, 1);
+    		    b1.set((2 * i) + 1);
     		}
-    		else if (currChar == 'G')
+    		else if (currChar == 'G')  // 10
     		{
-    		    b1.set(2 * i, 1);
-    		    b1.set((2 * i) + 1, 0);
+    		    b1.set(2 * i);
     		}
-    		else if (currChar == 'T')
+    		else if (currChar == 'T')  // 11
     		{
-    		    b1.set(2 * i, 1);
-    		    b1.set((2 * i) + 1, 1);
+    		    b1.set(2 * i);
+    		    b1.set((2 * i) + 1);
     		}
     	}
     	
+    	// Bit set is now correct, so return the byte array.
+    	// * Warning: returning as a byte array will zero fill to the closest
+    	// multiple of four.  So if there are 7 characters in the string, a 
+    	// byte array of size 2 (2 bits per char) will be returned with the 
+    	// last 2 bits set as 0s.  This must be handled when converting byte
+    	// array back into a string
     	return b1.toByteArray();
     }
     
@@ -231,54 +228,38 @@ public class MemoryManager
      * @param convertThis
      * @return
      */
-    private String byteToString(byte[] convertThis, int stringLength)
+    public String byteToString(byte[] convertThis, int strLength)
     {
+    	// Temp bitset to extract the data from the byte array passed in
+    	BitSet b1 = BitSet.valueOf(convertThis);
+    	
+    	// Build the result as a string to be returned at method conclusion
     	String result = "";
-    	BitSet bits1 = BitSet.valueOf(convertThis);
-    	int length = bits1.length();
-    	int numOfChars = length/4;
-    	
-    	// loop through length of array and convert to string
-    	byte[] tempArray = new byte[2];
-    	for (int i = 0; i < numOfChars; i++)
+    	for (int i = 0; i < strLength; i++)
     	{
-    		if (i <= numOfChars)
+    		if (i <= strLength)
     		{
-    			tempArray[0] = convertThis[i * 2];
-    			tempArray[1] = convertThis[i * 2 + 1];
-    			result += byteToStringHelper(tempArray);
+    			if (b1.get(i * 2) == false && b1.get(i * 2 + 1) == false)
+    			{
+    			    result += 'A';  // 00 (A)
+    			}
+    			else if (b1.get(i * 2) == false && b1.get(i * 2 + 1) == true)
+    			{
+    			    result += 'C';  // 01 (C)
+    			}
+    			else if (b1.get(i * 2) == true && b1.get(i * 2 + 1) == false)
+    			{
+    			    result += 'G';  // 10 (G)
+    			}
+    			else if (b1.get(i * 2) == true && b1.get(i * 2 + 1) == true)
+    			{
+    			    result += 'T';  // 11 (T)
+    			}
     		}
     	}
-    	return result;
+    	return result;  // Finally, return the complete string
     }
     
-    
-    private Character byteToStringHelper(byte[] tempBytes)
-    {
-    	
-    	if (tempBytes[0] == (byte)0)
-    	{
-    		if (tempBytes[1] == (byte)0)
-    		{
-    			return 'A';
-    		}
-    		else
-    		{
-    			return 'C';
-    		}
-    	}
-    	else
-    	{
-    		if (tempBytes[1] == (byte)0)
-    		{
-    			return 'G';
-    		}
-    		else
-    		{
-    			return 'T';
-    		}
-    	}
-    }
     /**
      * Function used to check if there is space in the
      * linked list for byte array passed in
