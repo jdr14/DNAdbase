@@ -111,7 +111,7 @@ public class DnaMain {
 			return false;
 		}
 		
-		boolean seqFound = false;
+		//boolean seqFound = false;
 		
 		int currHashIndex = (int)hashPosition;
 		int initialHashPos = (int)hashPosition;
@@ -119,18 +119,14 @@ public class DnaMain {
     	int startIndex = ((int)hashPosition / bucketSize) * bucketSize;  
     	int endIndex = (((int)hashPosition / bucketSize) + 1) * bucketSize;
     	
+    	// FSM: (Finite State Machine)
     	// Iterate through entire bucket in attempt to find seq ID
-    	while (!seqFound)
+    	while (true)
     	{    		
-    		// Case null position
-    		while (dnaHash.get(currHashIndex) == null)
+    		// Case 1: Null position
+    		while (dnaHash.get(currHashIndex) == null)  // Null Handler
     		{
-    			currHashIndex++;
-    			
-    			if (currHashIndex >= endIndex)
-    			{
-    				currHashIndex = startIndex;
-    			}
+    			incrementPosWithinBucket(currHashIndex, startIndex, endIndex);
     			
     			if (currHashIndex == initialHashPos)
     			{
@@ -138,16 +134,11 @@ public class DnaMain {
     			}
     		}
     		
-    		// Case tombstone position (has already been checked for 
+    		// Case 2: Tombstone position (has already been checked for 
     		// null at this point)
     		while (dnaHash.get(currHashIndex).getKey().getValue() < 0)
     		{	
-            	currHashIndex++;
-            	
-    			if (currHashIndex >= endIndex)
-    			{
-    				currHashIndex = startIndex;
-    			}
+    			incrementPosWithinBucket(currHashIndex, startIndex, endIndex);
     			
     			// Case where all tombstones were found in the bucket
     			if (currHashIndex == initialHashPos)
@@ -155,13 +146,25 @@ public class DnaMain {
     				return false;
     			}
     			
+    			// Return to case 1 if next position is null
     			if (dnaHash.get(currHashIndex) == null)
     			{
     				break;
     			}
     		}
     		
-    		// Case actual sequence is stored at that hash position
+    		// Check Null again 
+    		while (dnaHash.get(currHashIndex) == null)  // Null Handler
+    		{
+    			incrementPosWithinBucket(currHashIndex, startIndex, endIndex);
+    			
+    			if (currHashIndex == initialHashPos)
+    			{
+    				return false;
+    			}
+    		}
+    		
+    		// Case 3: Actual sequence is stored at that hash position
     		while (dnaHash.get(currHashIndex).getKey().getValue() >= 0)
     		{
     			Pair<Pair<Long, Long>, Pair<Long, Long>> memHandles = 
@@ -175,40 +178,61 @@ public class DnaMain {
     				String Sid = mDna.getDataFromFile(fileOffset, 
     						seqId.length());
     				
+    				// Equivalent seq found in hash table
     				if (Sid.equals(seqId))
     				{
     					return true;
     				}
     				
-    				currHashIndex++;
-    				
-    				if (dnaHash.get(currHashIndex) == null)
-    				{
-    					break;
-    				}
+    				incrementPosWithinBucket(currHashIndex, startIndex, 
+    						endIndex);
     				
     				if (currHashIndex == initialHashPos)
     				{
     					return false;
+    				}
+    				
+    				if (dnaHash.get(currHashIndex) == null)
+    				{
+    					break;
     				}
     			}
     			else
     			{
-    				currHashIndex++;
-    				
-    				if (dnaHash.get(currHashIndex) == null)
-    				{
-    					break;
-    				}
+    				incrementPosWithinBucket(currHashIndex, startIndex, 
+    						endIndex);
     				
     				if (currHashIndex == initialHashPos)
     				{
     					return false;
     				}
+    				
+    				if (dnaHash.get(currHashIndex) == null)
+    				{
+    					break;
+    				}
     			}
-    		}
-    	}
-    	return false;
+    		}  // End case 3 while
+    	}  // End master while
+	}  // End contains
+	
+	/**
+	 * Helper function for the contains method
+	 * @param currHashIndex
+	 * @param startOfBucket
+	 * @param endOfBucket
+	 */
+	private void incrementPosWithinBucket(int currHashPos,
+			int startOfBucket, int endOfBucket)
+	{
+		// 1) increment the hash index
+		currHashPos++;
+		
+		// 2) Check for null position
+		if (currHashPos == endOfBucket)
+		{
+			currHashPos = startOfBucket;
+		}
 	}
 	
 	/**
