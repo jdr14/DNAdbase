@@ -13,7 +13,7 @@ public interface HashTable<K, V> {
 	 * @param seq
 	 * @param seqLength
 	 */
-	public String insert(K key, V value);
+	public Long insert(K key, V value);
 	
 	/**
 	 * 

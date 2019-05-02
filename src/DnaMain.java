@@ -48,7 +48,7 @@ public class DnaMain {
 	/**
 	 * 
 	 */
-	private ArrayList<String> resultList;
+	private List<Pair<Long, String>> resultList;
 	
 	/**
 	 * Default Constructor
@@ -59,7 +59,7 @@ public class DnaMain {
 		hashFileName = h;
 		hashTableSize = s;
 		memoryFileName = m;
-		resultList = new ArrayList<String>();
+		resultList = new ArrayList<Pair<Long, String>>();
 		mDna = new MemoryManager(m);
 		dnaHash = new HashTableDna<String, 
 				Pair<Pair<Long, Long>, Pair<Long, Long>>>(h, s);
@@ -87,15 +87,36 @@ public class DnaMain {
 		
 		// use sequenceId and result from memory insert to create
 		//entry in hash table
-		String insertResult = dnaHash.insert(seqId, fileResult);
-		if (insertResult == null)
+		long hashSlot = dnaHash.insert(seqId, fileResult);
+		if (hashSlot < 0)
 		{
 			System.err.println("Inserting sequenceID " + seqId + " failed.");
 			return;
 		}
-		resultList.add(insertResult);
-		printResult();
 		
+		String msg = seqId + ": hash slot [" + hashSlot + "]";
+		if (resultList.isEmpty())
+		{
+			resultList.add(new Pair(hashSlot, msg));
+			printResult();
+			return;
+		}
+		else
+		{
+			for (int i = 0; i < resultList.size(); i++)
+			{
+				long pos = resultList.get(i).getKey();
+				if (hashSlot > pos)
+				{
+					resultList.add(i, new Pair(hashSlot, msg));
+					printResult();
+					return;
+				}
+			}
+		}
+		resultList.add(new Pair(hashSlot, msg));
+		printResult();
+		// resultList.add((int)hashSlot, seqId + ": hash slot [" + hashSlot + "]";
 	}
 	
 	
@@ -422,12 +443,11 @@ public class DnaMain {
     private void printResult()
     {
     	System.out.println("SequenceIDs: ");
-    	for (int i = 0; i < resultList.size(); i++)
+    	for (int i = resultList.size() - 1; i >= 0; i--)
     	{
-    		System.out.println(resultList.get(i));
+    		System.out.println(resultList.get(i).getValue());
     	}
     	System.out.println("Free Block List: none");
-//    	if ()
     	
     }
 }
