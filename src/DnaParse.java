@@ -93,7 +93,7 @@ public class DnaParse extends Parse
                     else if (listedLine.size() == 1 && 
                     		listedLine.get(0).equalsIgnoreCase("print"))
                     {
-                    	
+                    	dMain.printResult();
                     }
                 }
             }

@@ -94,9 +94,6 @@ public class MemoryManager
 	{
 		// move file pointer to position of sequence to be deleted
 		memFile.seek(seqPosition);
-		
-		// delete sequence
-		
 	}
     
 	/**
@@ -394,10 +391,8 @@ public class MemoryManager
         // check if sequence ID is same
     	String fromFile = getDataFromFile((long) seqIdPos, seqId.length());
     	
-    	
     	// case where seqID does not match, need to find correct value
     	return fromFile.equalsIgnoreCase(seqId);
-
     }
     
     /**
@@ -411,8 +406,8 @@ public class MemoryManager
     }
     
 
-    public void moveToStart() { curr = head.next(); } // Set curr at list start
-    public void moveToEnd() { curr = tail; }          // Set curr at list end
+    public void moveToStart() { curr = head; }  // Set curr at list start
+    public void moveToEnd() { curr = tail; }  // Set curr at list end
 
     // Move curr one step left; no change if now at front
     public void prev() 
@@ -490,7 +485,7 @@ public class MemoryManager
      * Return current element value. Note that null gets returned if curr is at the tail
      * @return item of the current node
      */
-    public Object getValue() 
+    public Pair<Long, Long> getValue() 
     { 
     	return curr.item(); 
     }
