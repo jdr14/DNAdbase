@@ -77,6 +77,8 @@ public class HashTableDna<K, V> implements HashTable<K, V>
 			// Set memory handles to the correct slot index in the hash table
 			hashTable[adjustedHashPosition] = 
 					(Pair<Pair<Long, Long>, Pair<Long, Long>>) value;
+			
+			hashPosition = (long) adjustedHashPosition;
 		}
 		
 		result = (String)key + ": hash value [" + hashPosition + "]";
