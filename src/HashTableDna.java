@@ -49,7 +49,7 @@ public class HashTableDna<K, V> implements HashTable<K, V>
 	 * @param value : Should be the actual sequence (as string)
 	 */
 	@Override
-	public String insert(K key, V value)
+	public Long insert(K key, V value)
 	{
 		String result;
 		// Get positioning using the sfold function
@@ -71,7 +71,7 @@ public class HashTableDna<K, V> implements HashTable<K, V>
 			// Validity check for the hash position
 			if (adjustedHashPosition < 0)
 			{
-				return null;  // Fails
+				return (long)-1;  // Fails
 			}
 			
 			// Set memory handles to the correct slot index in the hash table
@@ -81,8 +81,9 @@ public class HashTableDna<K, V> implements HashTable<K, V>
 			hashPosition = (long) adjustedHashPosition;
 		}
 		
-		result = (String)key + ": hash value [" + hashPosition + "]";
-		return result;
+		//result = (String)key + ": hash slot [" + hashPosition + "]";
+		
+		return hashPosition;
 	}
 	
     /**
@@ -154,7 +155,7 @@ public class HashTableDna<K, V> implements HashTable<K, V>
     	{
     		// case where sfold returns empty position
     		// sequence does not exist
-    		System.out.println("No sequence found using sequenceID: " + (String) key);
+    		System.out.println("SequenceID " + (String) key + " not found.");
     		return null;
     	}
     	
