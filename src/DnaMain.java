@@ -121,8 +121,25 @@ public class DnaMain {
     	
     	// Iterate through entire bucket in attempt to find seq ID
     	while (!seqFound)
-    	{
-    		// Case tombstone position
+    	{    		
+    		// Case null position
+    		while (dnaHash.get(currHashIndex) == null)
+    		{
+    			currHashIndex++;
+    			
+    			if (currHashIndex >= endIndex)
+    			{
+    				currHashIndex = startIndex;
+    			}
+    			
+    			if (currHashIndex == initialHashPos)
+    			{
+    				return false;
+    			}
+    		}
+    		
+    		// Case tombstone position (has already been checked for 
+    		// null at this point)
     		while (dnaHash.get(currHashIndex).getKey().getValue() < 0)
     		{	
             	currHashIndex++;
@@ -141,22 +158,6 @@ public class DnaMain {
     			if (dnaHash.get(currHashIndex) == null)
     			{
     				break;
-    			}
-    		}
-    		
-    		// Case null position
-    		while (dnaHash.get(currHashIndex) == null)
-    		{
-    			currHashIndex++;
-    			
-    			if (currHashIndex >= endIndex)
-    			{
-    				currHashIndex = startIndex;
-    			}
-    			
-    			if (currHashIndex == initialHashPos)
-    			{
-    				return false;
     			}
     		}
     		
@@ -186,7 +187,21 @@ public class DnaMain {
     					break;
     				}
     				
-    				if (currHashIndex == startIndex)
+    				if (currHashIndex == initialHashPos)
+    				{
+    					return false;
+    				}
+    			}
+    			else
+    			{
+    				currHashIndex++;
+    				
+    				if (dnaHash.get(currHashIndex) == null)
+    				{
+    					break;
+    				}
+    				
+    				if (currHashIndex == initialHashPos)
     				{
     					return false;
     				}
