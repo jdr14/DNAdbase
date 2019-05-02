@@ -115,9 +115,7 @@ public class MemoryManager
     	// convert both seqId and seq into byte arrays in
     	// accordance with the project sheet
     	byte[] arrayofId = stringToByte(seqId);
-    	System.err.println("size of arrayofId: " + arrayofId.length);
     	byte[] arrayofSeq = stringToByte(seq);
-    	System.err.println("size of arrayofSeq: " + arrayofSeq.length);
     	
     	// variable used to save position of seqId in file
     	long posOfseqId = 0;
@@ -222,7 +220,10 @@ public class MemoryManager
     	// byte array of size 2 (2 bits per char) will be returned with the 
     	// last 2 bits set as 0s.  This must be handled when converting byte
     	// array back into a string
-    	System.out.println("Size of b1: " + b1.length());
+    	if (b1.length() == 0)
+    	{
+    		b1.set((convertThis.length() * 2) + 1);
+    	}
     	return b1.toByteArray();
     }
     
@@ -313,11 +314,6 @@ public class MemoryManager
 		// First insert the sequence ID.  
 		long seqIdOffset = memFile.getFilePointer();
 		
-		// case where any # of A's are inserted so insertThis is 0
-		if (posInFile == seqIdOffset)
-		{
-			memFile.seek((long)Math.ceil(( length * 2 ) / 8));
-		}
 		
 		memFile.getFilePointer();
 		
@@ -357,11 +353,12 @@ public class MemoryManager
     	// need to double check if these values are what I think
     	// this double checking needs to be done in all: insert,
     	// search, and remove
-    	long seqPos1 = hashEntry.getKey().getValue();
+    	long seqPos1 = hashEntry.getKey().getKey();
     	String seqToRemove = getDataFromFile(seqPos1, length);
     	System.out.println("Sequence Removed " + seqToRemove + ": ");
-    	long seqPos = hashEntry.getValue().getValue();
-    	String seqFromFile = getDataFromFile(seqPos, length);
+    	long seqPos = hashEntry.getValue().getKey();
+    	long seqLength = hashEntry.getValue().getValue();
+    	String seqFromFile = getDataFromFile(seqPos, (int)seqLength);
     	System.out.println(seqFromFile);
         return true;
     }

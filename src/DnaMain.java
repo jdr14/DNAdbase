@@ -243,8 +243,10 @@ public class DnaMain {
 		Pair<Pair<Long, Long>, Pair<Long, Long>> hashEntry =
 				dnaHash.search(seqToRemove);
 		
+		long seqIdFoundLength = hashEntry.getKey().getValue();
 		// case where sequence is found in its correct spot
-		if(mDna.search(seqToRemove, hashEntry.getKey().getKey()))
+		if(mDna.search(seqToRemove, hashEntry.getKey().getKey()) && 
+				(seqToRemove.length() == (int) seqIdFoundLength))
 		{
 			mDna.remove(hashEntry, seqToRemove.length());
 			// remove from hash table as well
@@ -283,7 +285,7 @@ public class DnaMain {
 			// remove from hash table as well
 		}
 		
-		printResult();
+//		printResult();
 					
 	}
 	
