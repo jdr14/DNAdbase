@@ -115,7 +115,9 @@ public class MemoryManager
     	// convert both seqId and seq into byte arrays in
     	// accordance with the project sheet
     	byte[] arrayofId = stringToByte(seqId);
+    	System.err.println("size of arrayofId: " + arrayofId.length);
     	byte[] arrayofSeq = stringToByte(seq);
+    	System.err.println("size of arrayofSeq: " + arrayofSeq.length);
     	
     	// variable used to save position of seqId in file
     	long posOfseqId = 0;
@@ -134,7 +136,7 @@ public class MemoryManager
     		// else put seqId at the end of file
     		try 
     		{
-				posOfseqId = placeAtEndOfFile(arrayofId);
+				posOfseqId = placeAtEndOfFile(arrayofId, seqId.length());
 			} 
     		catch (IOException e) 
     		{
@@ -159,7 +161,7 @@ public class MemoryManager
     		// else put seq at end of file
     		try 
     		{
-				posOfSeq = placeAtEndOfFile(arrayofSeq);
+				posOfSeq = placeAtEndOfFile(arrayofSeq, seq.length());
 			} 
     		catch (IOException e) 
     		{
@@ -196,7 +198,8 @@ public class MemoryManager
     		char currChar = convertThis.charAt(i);
     		if (currChar == 'A')  // 00
     		{
-
+    			b1.clear(2 * i);
+    			b1.clear((2 * i) + 1);
     		}
     		else if (currChar == 'C')  // 01
     		{
@@ -219,6 +222,7 @@ public class MemoryManager
     	// byte array of size 2 (2 bits per char) will be returned with the 
     	// last 2 bits set as 0s.  This must be handled when converting byte
     	// array back into a string
+    	System.out.println("Size of b1: " + b1.length());
     	return b1.toByteArray();
     }
     
@@ -298,16 +302,24 @@ public class MemoryManager
      * @return the position in the file of the seq/seqId
      * @throws IOException 
      */
-    private long placeAtEndOfFile(byte[] insertThis) throws IOException
+    private long placeAtEndOfFile(byte[] insertThis, int length) throws IOException
     {
     	// Get the pointer to file offset from the beginning (in bytes)
 		long posInFile = memFile.getFilePointer();
 		
-	    // First insert the sequence ID.  
-		int seqIdOffset = (int)posInFile;
-		
 		// Write the sequence ID to the file
 		writeToFile(insertThis);
+		
+		// First insert the sequence ID.  
+		long seqIdOffset = memFile.getFilePointer();
+		
+		// case where any # of A's are inserted so insertThis is 0
+		if (posInFile == seqIdOffset)
+		{
+			memFile.seek((long)Math.ceil(( length * 2 ) / 8));
+		}
+		
+		memFile.getFilePointer();
 		
     	return posInFile;
     }
