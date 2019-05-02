@@ -171,28 +171,35 @@ public class HashTableDna<K, V> implements HashTable<K, V>
 
 
 	@Override
-	public V remove(K key) 
+	public V remove(K key, V value) 
 	{
 
-    	// get positioning using the sfold function
-		long hashPosition = sfold((String)key, (int)hashTableSize);
-		
-    	// get pair at the position in hash table
 		Pair<Pair<Long, Long>, Pair<Long, Long>> currHashPos =
-				hashTable[(int)hashPosition];
+				(Pair<Pair<Long, Long>, Pair<Long, Long>>) value;
 		
-    	// check if there is a pair at that position
-    	if (currHashPos == null)
-    	{
-    		// case where sfold returns empty position
-    		// sequence does not exist
-    		System.out.println("No sequence found using sequenceID: " + (String) key);
-    		return null;
-    	}
+		String positionString = (String) key;
+		int position = Integer.parseInt(positionString);
+//    	// get positioning using the sfold function
+//		long hashPosition = sfold((String)key, (int)hashTableSize);
+//		
+//    	// get pair at the position in hash table
+//		Pair<Pair<Long, Long>, Pair<Long, Long>> currHashPos =
+//				hashTable[(int)hashPosition];
+//		
+//    	// check if there is a pair at that position
+//    	if (currHashPos == null)
+//    	{
+//    		// case where sfold returns empty position
+//    		// sequence does not exist
+//    		System.out.println("No sequence found using sequenceID: " + (String) key);
+//    		return null;
+//    	}
     	
     	// set flag for tomb stone. Sequence ID length value will be
     	// -1 indicating that something used to be here
     	currHashPos.getKey().setValue((long)-1);
+    	
+    	hashTable[position] = currHashPos;
 
 		return (V) currHashPos;
 	}
