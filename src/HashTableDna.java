@@ -202,7 +202,7 @@ public class HashTableDna<K, V> implements HashTable<K, V>
 	 */
 	public V get(int position) throws ArrayIndexOutOfBoundsException
 	{
-		if (position >= hashTableSize)
+		if (position >= hashTableSize || position < 0)
 		{
 			// TODO: Unsure if printing is necessary here
 			throw new ArrayIndexOutOfBoundsException("Error: trying to access"
