@@ -440,14 +440,72 @@ public class DnaMain {
     	return newPos;
     }
     
-    private void printResult()
+    public void printResult()
     {
     	System.out.println("SequenceIDs: ");
     	for (int i = resultList.size() - 1; i >= 0; i--)
     	{
     		System.out.println(resultList.get(i).getValue());
     	}
-    	System.out.println("Free Block List: none");
     	
+    	if (mDna.isEmpty())
+    	{
+    		System.out.println("Free Block List: none");
+    	}
+    	else
+    	{
+    		int numBlocks = 1;  // There is at least one block of free space
+    		
+    		mDna.moveToStart();  // Move current node to head
+    		long fileOffset = mDna.getValue().getKey();
+    		long byteLength = (mDna.getValue().getValue() / 4) + 1;
+    		
+    		if (mDna.isAtEnd())  // Handle case list size is just 1
+    		{
+        		System.out.println("[Block " + numBlocks + "] Starting Byte "
+        				+ "Location: " + fileOffset + ", Size " 
+        				+ byteLength + " bytes");
+        		return;
+    		}
+            
+    		long prevFileOffset = fileOffset;
+    		long prevByteLength = byteLength;
+    		System.out.print("\n[Block ");
+    		
+    		while (!mDna.isAtEnd())  // Handle for arbitrary list length
+    		{
+    			mDna.next();  // Index to the next node
+    			fileOffset = mDna.getValue().getKey();
+    			byteLength = (mDna.getValue().getValue() / 4) + 1;
+    			
+    			// The next amount of free space is a part of the same block
+    			if (prevFileOffset + prevByteLength == fileOffset)
+    			{
+    				byteLength += prevByteLength;
+    				fileOffset = prevFileOffset;
+    			}
+    			else
+    			{
+    				System.out.print(numBlocks + "] Starting Byte Location: " 
+    			        + prevFileOffset + ", Size " + prevByteLength 
+    			        + " bytes");
+    				
+    				// Start tracking a new block of free space
+    				numBlocks++;
+    				//System.out.print("\n[Block " + numBlocks + "] Starting "
+    				//	+ "Byte Location: " + fileOffset);
+    			}
+    			
+    			// Remember current offset and byte length for next iteration
+    			prevFileOffset = fileOffset;
+    			prevByteLength = byteLength;
+    		}
+    		
+    		if (mDna.isAtEnd())  // Handle case list size is just 1
+    		{
+    			fileOffset = mDna.getValue().getKey();
+    			byteLength = (mDna.getValue().getValue() / 4) + 1;
+    		}
+    	}
     }
 }
