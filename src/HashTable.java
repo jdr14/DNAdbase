@@ -20,7 +20,7 @@ public interface HashTable<K, V> {
 	 * @param seqToRemove
 	 * @return 
 	 */
-	public V remove(K key);
+	public V remove(K key, V vlaue);
 	
 	/**
 	 * 

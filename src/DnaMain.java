@@ -273,6 +273,9 @@ public class DnaMain {
 				(seqToRemove.length() == (int) seqIdFoundLength))
 		{
 			mDna.remove(hashEntry, seqToRemove.length());
+			// mark as tomb stone
+			long pos = dnaHash.getsFold(seqToRemove);
+			dnaHash.remove(Long.toString(pos), hashEntry );
 			// remove from hash table as well
 		}
 		// else start checking around in the bucket
@@ -306,6 +309,8 @@ public class DnaMain {
 			
 			// remove correct entry
 			mDna.remove(hashEntry, seqToRemove.length());
+			// mark as tomb stone
+			dnaHash.remove(Long.toString(correctPosition), hashEntry);
 			// remove from hash table as well
 		}
 		
@@ -319,15 +324,24 @@ public class DnaMain {
 	 */
 	public void search(String seqToFind)
 	{
-		Pair<Pair<Long, Long>, Pair<Long, Long>> hashEntry =
-				dnaHash.search(seqToFind);
+		Pair<Pair<Long, Long>, Pair<Long, Long>> hashEntry = dnaHash.search(seqToFind);
 		
+		// case where sequence was removed
+		if (hashEntry.getKey().getValue() == -1)
+		{
+			System.out.println("SequenceID " + seqToFind + " not found");
+			return;
+		}
+		
+		long seqIdFoundLength = hashEntry.getKey().getValue();
 		// case where sequence is found in its correct spot
-		if(mDna.search(seqToFind, hashEntry.getKey().getKey()))
+		if(mDna.search(seqToFind, hashEntry.getKey().getKey())&& 
+				(seqToFind.length() == (int) seqIdFoundLength))
 		{
 			// just print the sequence found at the offset
 			// of the second pair
-			mDna.printSeq(hashEntry.getValue().getKey(), seqToFind.length());
+			long tempSize = hashEntry.getValue().getValue();
+			mDna.printSeq(hashEntry.getValue().getKey(), (int) tempSize);
 		}
 		// else start checking around in the bucket
 		else
@@ -340,13 +354,15 @@ public class DnaMain {
 			if (correctPosition == -1)
 			{
 				// throw search error
-				System.err.println("SequenceID " + seqToFind + " not found.");
+				System.err.println("Sequence ID " + seqToFind + " does not exist.");
+				return;
 			}
 			
 			// update hashEntry variable
 			hashEntry = dnaHash.get((int) correctPosition);
 			// print out correct sequence
-			mDna.printSeq(hashEntry.getValue().getKey(), seqToFind.length());
+			long tempSize = hashEntry.getValue().getValue();
+			mDna.printSeq(hashEntry.getValue().getKey(), (int) tempSize);
 		}
 		
 	}
@@ -381,7 +397,7 @@ public class DnaMain {
     		oldPos += 1;
     		
     		// if reach end of bucket, loop back to beginning
-    		if (oldPos > end)
+    		if (oldPos > (end - 1))
     		{
     			oldPos = start;
     		}
@@ -406,14 +422,19 @@ public class DnaMain {
         		// case where entry is null
         		continue;
         	}
+        	
+        	if (currHashPos.getKey().getValue() != (long) seqNeeded.length())
+        	{
+        		continue;
+        	}
 
         	// case where correct seqID is found, need to break from loop
         	// double check to see if this search function does what is expected
-        	if (mDna.search(seqNeeded, currHashPos.getKey().getKey()))
-        	{
+//        	if (mDna.search(seqNeeded, currHashPos.getKey().getKey()))
+//        	{
         		newPos = oldPos;
                 isFound = true;
-        	}
+//        	}
     	}
     	
     	return newPos;
