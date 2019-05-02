@@ -90,7 +90,7 @@ public class DnaMain {
 		long hashSlot = dnaHash.insert(seqId, fileResult);
 		if (hashSlot < 0)
 		{
-			System.err.println("Inserting sequenceID " + seqId + " failed.");
+			System.out.println("Bucket full.Sequence" + seqId + "could not be inserted");
 			return;
 		}
 		
@@ -289,7 +289,7 @@ public class DnaMain {
 			if (correctPosition == -1)
 			{
 				// throw remove error error
-				System.err.println("Sequcnce ID " + seqToRemove + " does not exist.");
+				System.err.println("Sequcnce ID " + seqToRemove + " not found");
 			}
 			// update hashEntry variable
 			try
