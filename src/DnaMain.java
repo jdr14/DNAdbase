@@ -45,6 +45,9 @@ public class DnaMain {
 	 */
 	private int bucketSize = 32;
 	
+	/**
+	 * 
+	 */
 	private ArrayList<String> resultList;
 	
 	/**
