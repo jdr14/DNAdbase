@@ -143,7 +143,15 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
     	if (spaceInList(arrayofId))
     	{
     		// if space available, place in list and save position
-    		posOfseqId = emplaceInList(arrayofId);
+    		try 
+    		{
+    			posOfSeq = emplaceInList(arrayofSeq);
+    		}
+    		catch (IOException e)
+    		{
+    			System.err.println(e);
+    			e.printStackTrace();
+    		}
     	}
     	else
     	{
@@ -168,7 +176,15 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
     	if (spaceInList(arrayofSeq))
     	{
     		// if space available, place in list and save position
-    		posOfSeq = emplaceInList(arrayofSeq);
+    		try 
+    		{
+    			posOfSeq = emplaceInList(arrayofSeq);
+    		}
+    		catch (IOException e)
+    		{
+    			System.err.println(e);
+    			e.printStackTrace();
+    		}
     	}
     	else
     	{
@@ -299,6 +315,13 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
     	 
     	 if (insertThis.length <= 
     	 */
+    	for (int i = 0; i < freeBlocks.size(); i++)
+    	{
+    		if (insertThis.length <= freeBlocks.get(i).getValue())
+    		{
+    			return true;
+    		}
+    	}
     	return false;
     }
     
@@ -307,9 +330,50 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
      * @param insertThis
      * @return the position in the file of the seq/seqId
      */
-    private long emplaceInList(byte[] insertThis)
+    private long emplaceInList(byte[] insertThis) throws IOException
     {
-    	return 0;
+    	for (int i = 0; i < freeBlocks.size(); i++)
+    	{
+    		if (insertThis.length == freeBlocks.get(i).getValue())
+    		{
+    		    long fileOffset = freeBlocks.get(i).getKey();
+    		    long origFilePointer = memFile.getFilePointer(); 
+    		    
+    		    memFile.seek(fileOffset);
+    		    writeToFile(insertThis);
+    		    
+    		    // return file pointer to original state
+    		    memFile.seek(origFilePointer);  
+    		    
+    		    // Free space no longer exists
+    		    freeBlocks.remove(i);
+    		    
+    		    return fileOffset;
+    		}
+    		
+    		// Not the entire free block was taken up, decrement appropriately
+    		if (insertThis.length < freeBlocks.get(i).getValue())
+    		{
+    		    long fileOffset = freeBlocks.get(i).getKey();
+    		    long origFilePointer = memFile.getFilePointer(); 
+    		    
+    		    memFile.seek(fileOffset);
+    		    writeToFile(insertThis);
+    		    
+    		    long newFileOffset = memFile.getFilePointer();
+    		    
+    		    // return file pointer to original state
+    		    memFile.seek(origFilePointer);  
+    		    
+    		    // Create an updated free space node to replace the current 
+    			Pair<Long, Long> updatedFreeSpaceNode = 
+    					new Pair<Long, Long>(newFileOffset, 
+    							freeBlocks.get(i).getValue() - 
+    							insertThis.length);
+    			freeBlocks.set(i, updatedFreeSpaceNode);
+    		}
+    	}
+    	return -1;  // Error has occurred
     }
     
     /**
@@ -362,20 +426,63 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
      * Remove and return current element
      */
     public boolean remove (Pair<Pair<Long, Long>,
-    		Pair<Long, Long>> hashEntry, int length) 
+    		Pair<Long, Long>> hashEntry, int sLength) 
     {
     	
 		// if correct, add entries to linked list of free spaces
 		// make sure that this is correct but it makes sense
-    	freeBlocks.add(hashEntry.getKey());
-    	curr.setNext(new Node(hashEntry.getKey()));
-    	curr = curr.next();
     	
-    	freeBlocks.add(hashEntry.getValue());
-    	curr.setNext(new Node(hashEntry.getValue()));
-    	listSize += 2;
+    	long seqIdByteLength = seqToByteLength(sLength);
+    	//System.out.println("SEQ BYTE LENGTH = " + seqByteLength);
     	
+    	long seqIdOffset = hashEntry.getKey().getKey();
+    	long seqOffset = hashEntry.getValue().getKey();
+    	
+    	// If the 2 free space nodes will be adjacent, combine them
+    	if (seqIdOffset + seqIdByteLength == seqOffset)
+    	{
+    		// Get length of the combined string of seq Id + sequence
+    	    long combinedStrLength = hashEntry.getKey().getValue() 
+    	    		+ hashEntry.getValue().getValue();
+    	    System.out.println("COMBINED STRING LENGTH " + combinedStrLength);
+    	    
+    	    // Convert the combined string length to byte length
+    	    /*
+    	     *  TODO: Review that the string length equivalent of free space
+    	     *  should be stored instead of the byte length??
+    	     */
+    	    // long combinedByteLength = seqToByteLength(combinedStrLength);
+    		Pair<Long, Long> combinedNode = new Pair<Long, Long>(seqIdOffset,
+    				combinedStrLength);
+    		
+    		// Add the combined free space node to the linked list
+    		freeBlocks.add(combinedNode);
+    		
+    		listSize++;  // Increment list size accordingly
+    	}
+    	else
+    	{
+    		// Otherwise, add both free space nodes as 2 seperate entities
+    		freeBlocks.add(hashEntry.getKey());
+    		freeBlocks.add(hashEntry.getValue());
+    		listSize += 2;
+    	}
+    	
+    	// make sure the list stays sorted in ascending order
+    	// Uses the overloaded comparator to compare the offsets
     	Collections.sort(freeBlocks, new MemoryManager());
+    	
+//    	freeBlocks.add(hashEntry.getKey());
+//    	System.out.println("hash key offset = " + hashEntry.getKey().getKey());
+//    	System.out.println("hash key length = " + hashEntry.getKey().getValue());
+//    	curr.setNext(new Node(hashEntry.getKey()));
+//    	curr = curr.next();
+    	
+//    	freeBlocks.add(hashEntry.getValue());
+//    	System.out.println("hash value offset = " + hashEntry.getValue().getKey());
+//    	System.out.println("hash value length = " + hashEntry.getValue().getValue());
+//    	curr.setNext(new Node(hashEntry.getValue()));
+//    	listSize += 2;
     	
     	// print out sequence
     	// these next couple of lines need to get fixed
@@ -384,7 +491,7 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
     	// this double checking needs to be done in all: insert,
     	// search, and remove
     	long seqPos1 = hashEntry.getKey().getKey();
-    	String seqToRemove = getDataFromFile(seqPos1, length);
+    	String seqToRemove = getDataFromFile(seqPos1, sLength);
     	System.out.println("Sequence Removed " + seqToRemove + ":");
     	long seqPos = hashEntry.getValue().getKey();
     	long seqLength = hashEntry.getValue().getValue();
@@ -395,12 +502,29 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
     
     /**
      * 
+     * @param s sequence or sequence ID as string
+     * @return 
+     */
+    private Long seqToByteLength(long seqLength)
+    {
+    	if (seqLength % 4 == 0)
+    	{
+    		return (long)(seqLength / 4);
+    	}
+    	else
+    	{
+    		return (long)((seqLength / 4) + 1);
+    	}
+    }
+    
+    /**
+     * 
      * @param filePosition
      */
     public String getDataFromFile(long filePosition, int stringLength)
     {
     	String foundLine = "";
-    	byte[] tempArray = new byte [ (stringLength/4) + 1];
+    	byte[] tempArray = new byte [(stringLength / 4) + 1];
     	try 
     	{
 			memFile.seek(filePosition);
