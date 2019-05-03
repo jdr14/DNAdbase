@@ -38,6 +38,7 @@ public class MemoryManager
     
     
     private LinkedList<Pair<Long, Long>> freeBlocks;
+    
     /**
      * Project spec declares offset should be stored as an int
      * Use this private variable to help with casting from long to int

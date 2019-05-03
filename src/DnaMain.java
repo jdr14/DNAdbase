@@ -268,6 +268,7 @@ public class DnaMain {
 				dnaHash.search(seqToRemove);
 		
 		long seqIdFoundLength = hashEntry.getKey().getValue();
+		
 		// case where sequence is found in its correct spot
 		if(mDna.search(seqToRemove, hashEntry.getKey().getKey()) && 
 				(seqToRemove.length() == (int) seqIdFoundLength))
@@ -275,7 +276,11 @@ public class DnaMain {
 			mDna.remove(hashEntry, seqToRemove.length());
 			// mark as tomb stone
 			long pos = dnaHash.getsFold(seqToRemove);
-			dnaHash.remove(Long.toString(pos), hashEntry );
+			
+			Pair<Pair<Long, Long>, Pair<Long, Long>> memHandles = 
+					dnaHash.remove(Long.toString(pos), hashEntry );
+			
+			
 			// remove from hash table as well
 		}
 		// else start checking around in the bucket
@@ -442,6 +447,23 @@ public class DnaMain {
     
     /**
      * 
+     * @param s sequence or sequence ID as string
+     * @return 
+     */
+    private Long seqToByteLength(long seqLength)
+    {
+    	if (seqLength % 4 == 0)
+    	{
+    		return (long)(seqLength / 4);
+    	}
+    	else
+    	{
+    		return (long)((seqLength / 4) + 1);
+    	}
+    }
+    
+    /**
+     * 
      */
     public void printResult()
     {
@@ -461,8 +483,8 @@ public class DnaMain {
     		
     		mDna.getList().getFirst();  // Move current node to head
     		long fileOffset = mDna.getList().getFirst().getKey();
-    		long byteLength = (mDna.getList().getFirst().getValue() / 4) + 1;
-    		
+    		long byteLength = seqToByteLength(mDna.getList().getFirst().getValue());
+
     		if (mDna.getList().getFirst() == mDna.getList().getLast())  // Handle case list size is just 1
     		{
         		System.out.println("[Block " + numBlocks + "] Starting Byte "
