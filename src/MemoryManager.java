@@ -372,6 +372,8 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
     	// Get the pointer to file offset whenever its at the end of file
 		long posInFile = memFile.getFilePointer();
 		
+		//System.out.println("DEBUG: insertThis length = " + insertThis.length);
+		
 		// Write the sequence ID to the file
 		writeToFile(insertThis);
 		
@@ -401,7 +403,7 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
 		// make sure that this is correct but it makes sense
     	
     	long seqIdByteLength = seqToByteLength(sLength);
-    	//System.out.println("SEQ BYTE LENGTH = " + seqByteLength);
+    	//System.out.println("SEQ BYTE LENGTH = " + seqIdByteLength);
     	
     	long seqIdOffset = hashEntry.getKey().getKey();
     	long seqOffset = hashEntry.getValue().getKey();
@@ -443,14 +445,14 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
     	mergeAdjacentFreeNodes();
     	
 //    	freeBlocks.add(hashEntry.getKey());
-//    	System.out.println("hash key offset = " + hashEntry.getKey().getKey());
-//    	System.out.println("hash key length = " + hashEntry.getKey().getValue());
+    	//System.out.println("hash key offset = " + hashEntry.getKey().getKey());
+    	//System.out.println("hash key length = " + hashEntry.getKey().getValue());
 //    	curr.setNext(new Node(hashEntry.getKey()));
 //    	curr = curr.next();
     	
 //    	freeBlocks.add(hashEntry.getValue());
-//    	System.out.println("hash value offset = " + hashEntry.getValue().getKey());
-//    	System.out.println("hash value length = " + hashEntry.getValue().getValue());
+    	//System.out.println("hash value offset = " + hashEntry.getValue().getKey());
+    	//System.out.println("hash value length = " + hashEntry.getValue().getValue());
 //    	curr.setNext(new Node(hashEntry.getValue()));
 //    	listSize += 2;
     	
