@@ -34,7 +34,7 @@ public class DnaParse extends Parse
     
 	/**
 	 * Method to handle the parsing and functionality execution as read in by
-	 * the command file
+	 * the command fileexample input
 	 * @return true on success
 	 */
 	public Boolean parseMain(DnaMain d)

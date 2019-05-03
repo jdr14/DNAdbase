@@ -98,7 +98,7 @@ public class DnaMain {
 		if (resultList.isEmpty())
 		{
 			resultList.add(new Pair(hashSlot, msg));
-			printResult();
+			//printResult();
 			return;
 		}
 		else
@@ -109,7 +109,7 @@ public class DnaMain {
 				if (hashSlot > pos)
 				{
 					resultList.add(i, new Pair(hashSlot, msg));
-					printResult();
+					//printResult();
 					return;
 				}
 			}
@@ -280,6 +280,8 @@ public class DnaMain {
 			Pair<Pair<Long, Long>, Pair<Long, Long>> memHandles = 
 					dnaHash.remove(Long.toString(pos), hashEntry );
 			
+			// Update the printable list of sequences
+			updateResultList(pos);
 			
 			// remove from hash table as well
 		}
@@ -316,11 +318,28 @@ public class DnaMain {
 			mDna.remove(hashEntry, seqToRemove.length());
 			// mark as tomb stone
 			dnaHash.remove(Long.toString(correctPosition), hashEntry);
+			
+			// Remove the sequence from the printable list of sequences
+			updateResultList(correctPosition);
+			
 			// remove from hash table as well
+		}			
+	}
+	
+	/**
+	 * Remove the sequence from the printable list
+	 * @param hashPos
+	 */
+	private void updateResultList(long hashPos)
+	{
+		for (int i = 0; i < resultList.size(); i++)
+		{
+			if (hashPos == resultList.get(i).getKey())
+			{
+				resultList.remove(i);
+				break;
+			}
 		}
-		
-//		printResult();
-					
 	}
 	
 	/**
@@ -467,7 +486,7 @@ public class DnaMain {
      */
     public void printResult()
     {
-    	System.out.println("SequenceIDs: ");
+    	System.out.println("Sequence IDs:");
     	for (int i = resultList.size() - 1; i >= 0; i--)
     	{
     		System.out.println(resultList.get(i).getValue());
@@ -479,6 +498,7 @@ public class DnaMain {
     	}
     	else
     	{
+    		System.out.println("Free Block List:");
     		int numBlocks = 1;  // There is at least one block of free space
     		
     		mDna.getList().getFirst();  // Move current node to head
@@ -496,7 +516,7 @@ public class DnaMain {
     		long prevFileOffset = fileOffset;
     		long prevByteLength = byteLength;
     		Pair<Long, Long> IterPair = mDna.getList().getFirst();
-    		System.out.print("[Block ");
+    		//System.out.print("[Block ");
     		
     		while (IterPair != mDna.getList().getLast())  // Handle for arbitrary list length
     		{
@@ -513,9 +533,9 @@ public class DnaMain {
     			}
     			else
     			{
-    				System.out.print(numBlocks + "] Starting Byte Location: " 
-    			        + prevFileOffset + ", Size " + prevByteLength 
-    			        + " bytes\n");
+    				System.out.println("[Block" + numBlocks + "] Starting Byte"
+    						+ " Location: " + prevFileOffset + ", Size " 
+    						+ prevByteLength + " bytes");
     				
     				// Start tracking a new block of free space
     				numBlocks++;

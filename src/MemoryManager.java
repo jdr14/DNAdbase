@@ -9,7 +9,7 @@ import java.util.*;
  * @version 1.3.4
  *
  */
-public class MemoryManager
+public class MemoryManager implements Comparator<Pair<Long, Long>>
 {
 	/**
 	 * Create nodes to track the head, tail, and the current node
@@ -44,6 +44,11 @@ public class MemoryManager
      * Use this private variable to help with casting from long to int
      */
     private long intMaxAsLong = (long)Integer.MAX_VALUE;
+    
+    /**
+     * Default constructor to be used for comparing the offsets later
+     */
+    public MemoryManager() {}
     
     /**
      * Constructor creates 
@@ -340,6 +345,16 @@ public class MemoryManager
         listSize++;
         return true;
     }
+    
+    /**
+     * Overload the comparator class for custom Pair types.  Comparing the
+     * offsets of the pair objects will aid in sorting the linked list
+     */
+    @Override
+    public int compare(Pair<Long, Long> p1, Pair<Long, Long> p2)
+    {
+    	return (int)(p1.getKey() - p2.getKey());
+    }
 
     /**
      * 
@@ -355,10 +370,12 @@ public class MemoryManager
     	freeBlocks.add(hashEntry.getKey());
     	curr.setNext(new Node(hashEntry.getKey()));
     	curr = curr.next();
+    	
     	freeBlocks.add(hashEntry.getValue());
     	curr.setNext(new Node(hashEntry.getValue()));
     	listSize += 2;
     	
+    	Collections.sort(freeBlocks, new MemoryManager());
     	
     	// print out sequence
     	// these next couple of lines need to get fixed
@@ -368,7 +385,7 @@ public class MemoryManager
     	// search, and remove
     	long seqPos1 = hashEntry.getKey().getKey();
     	String seqToRemove = getDataFromFile(seqPos1, length);
-    	System.out.println("Sequence Removed " + seqToRemove + ": ");
+    	System.out.println("Sequence Removed " + seqToRemove + ":");
     	long seqPos = hashEntry.getValue().getKey();
     	long seqLength = hashEntry.getValue().getValue();
     	String seqFromFile = getDataFromFile(seqPos, (int)seqLength);
