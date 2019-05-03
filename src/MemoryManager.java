@@ -11,21 +11,7 @@ import java.util.*;
  */
 public class MemoryManager implements Comparator<Pair<Long, Long>>
 {
-	/**
-	 * Create nodes to track the head, tail, and the current node
-	 */
-    private Node<Pair<Long, Long>> head;
-    
-    /**
-     * Current to tack the current node
-     */
-    private Node<Pair<Long, Long>> curr;
-    
-    /**
-     * 
-     */
-    private Node<Pair<Long, Long>> tail;
-    
+
     /**
      * variable to track the size of the linked list
      */
@@ -38,13 +24,7 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
     
     
     private LinkedList<Pair<Long, Long>> freeBlocks;
-    
-    /**
-     * Project spec declares offset should be stored as an int
-     * Use this private variable to help with casting from long to int
-     */
-    private long intMaxAsLong = (long)Integer.MAX_VALUE;
-    
+
     /**
      * Default constructor to be used for comparing the offsets later
      */
@@ -70,9 +50,6 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
 		
 		// Initialize the linked list size as well as head, current, and tail
 		listSize = 0;
-		curr = tail = new Node();
-		head = new Node();
-		head.setNext(curr);
 		freeBlocks = new LinkedList<Pair<Long, Long>>();
 	}
 	
@@ -84,14 +61,6 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
 	{
 		return freeBlocks;
 	}
-
-    // Remove all elements and reset the linked list
-    public void clear() 
-    {
-        curr = tail = new Node(); // Create trailer
-        head = new Node(tail);        // Create header
-        listSize = 0;
-    }
     
 	/**
 	 * 
@@ -131,7 +100,19 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
     	// convert both seqId and seq into byte arrays in
     	// accordance with the project sheet
     	byte[] arrayofId = stringToByte(seqId);
+    	
+    	// case where seqId is 'AAAA' or 'AAAAAAAA'
+    	if (arrayofId.length == 0)
+    	{
+    		arrayofId = new byte[seqId.length() / 4];
+    	}
     	byte[] arrayofSeq = stringToByte(seq);
+    	
+    	// case where seq is 'AAAA' or 'AAAAAAAA'
+    	if (arrayofSeq.length == 0)
+    	{
+    		arrayofSeq = new byte[seq.length() / 4];
+    	}
     	
     	// variable used to save position of seqId in file
     	long posOfseqId = 0;
@@ -145,7 +126,7 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
     		// if space available, place in list and save position
     		try 
     		{
-    			posOfSeq = emplaceInList(arrayofSeq);
+    			posOfseqId = emplaceInList(arrayofSeq);
     		}
     		catch (IOException e)
     		{
@@ -158,7 +139,7 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
     		// else put seqId at the end of file
     		try 
     		{
-				posOfseqId = placeAtEndOfFile(arrayofId, seqId.length());
+				posOfseqId = placeAtEndOfFile(arrayofId);
 			} 
     		catch (IOException e) 
     		{
@@ -169,7 +150,7 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
     	// creation of the first entry in the pair to be returned
     	// second parameter might have to be length of string
     	Pair<Long, Long> bigKey = 
-    			new Pair<Long, Long>(posOfseqId, (long)seqId.length());  //(long)arrayofId.length);
+    			new Pair<Long, Long>(posOfseqId, (long)seqId.length());
     	
     	// case where space was found in list for the seq
     	// parameter of this function might be string
@@ -191,7 +172,7 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
     		// else put seq at end of file
     		try 
     		{
-				posOfSeq = placeAtEndOfFile(arrayofSeq, seq.length());
+				posOfSeq = placeAtEndOfFile(arrayofSeq);
 			} 
     		catch (IOException e) 
     		{
@@ -201,7 +182,7 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
     	// creation of the second entry in pair to be returned
     	// second parameter might have to be length of string
     	Pair<Long, Long> bigValue = 
-    			new Pair<Long, Long>(posOfSeq, (long)seq.length());  // (long)arrayofSeq.length);
+    			new Pair<Long, Long>(posOfSeq, (long)seq.length());
     	
     	// set result to have the correct values calculated
     	result.setKey(bigKey);
@@ -254,7 +235,10 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
     	// array back into a string
     	if (b1.length() == 0)
     	{
-    		b1.set((convertThis.length() * 2) + 1);
+    		if (convertThis.length() % 4 != 0)
+    		{
+    			b1.set((convertThis.length() * 2) + 1);	
+    		}
     	}
     	return b1.toByteArray();
     }
@@ -383,9 +367,9 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
      * @return the position in the file of the seq/seqId
      * @throws IOException 
      */
-    private long placeAtEndOfFile(byte[] insertThis, int length) throws IOException
+    private long placeAtEndOfFile(byte[] insertThis) throws IOException
     {
-    	// Get the pointer to file offset from the beginning (in bytes)
+    	// Get the pointer to file offset whenever its at the end of file
 		long posInFile = memFile.getFilePointer();
 		
 		//System.out.println("DEBUG: insertThis length = " + insertThis.length);
@@ -393,23 +377,7 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
 		// Write the sequence ID to the file
 		writeToFile(insertThis);
 		
-		// First insert the sequence ID.  
-		long seqIdOffset = memFile.getFilePointer();
-		
-		
-		memFile.getFilePointer();
-		
     	return posInFile;
-    }
-    
-    // Append "it" to list
-    private boolean append(Node<Pair<Long, Long>> memoryHandles) 
-    {
-        tail.setNext(new Node(null));
-        tail.setItem(memoryHandles.item());
-        tail = tail.next();
-        listSize++;
-        return true;
     }
     
     /**
@@ -489,11 +457,6 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
 //    	listSize += 2;
     	
     	// print out sequence
-    	// these next couple of lines need to get fixed
-    	// need to decode the bytes grabbed from the file
-    	// need to double check if these values are what I think
-    	// this double checking needs to be done in all: insert,
-    	// search, and remove
     	long seqPos1 = hashEntry.getKey().getKey();
     	String seqToRemove = getDataFromFile(seqPos1, sLength);
     	System.out.println("Sequence Removed " + seqToRemove + ":");
@@ -534,6 +497,7 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
     							prevNode.getValue() + currNode.getValue());
     			freeBlocks.set(i - 1, mergeNode);
     			freeBlocks.remove(i);
+    			i = 0;
     		}
     	}
     }
@@ -600,331 +564,4 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
     	System.out.println("Sequence Found: " + seqFromFile);
     }
     
-    /**
-     * 
-     */
-    public void moveToStart() 
-    { 
-    	curr = head.next();
-    }  // Set curr at list start
-    
-    /**
-     * 
-     */
-    public void moveToEnd() { curr = tail; }  // Set curr at list end
-
-    // Move curr one step left; no change if now at front
-    public void prev() 
-    {
-      if (head.next() == curr) return; // No previous element
-      Node<Pair<Long, Long>> temp = head;
-      // March down list until we find the previous element
-      while (temp.next() != curr) temp = temp.next();
-      curr = temp;
-    }
-
-    // Move curr one step right; no change if now at end
-    public void next() 
-    { 
-    	if (curr != tail) 
-    	{
-    		curr = curr.next(); 
-    	}
-    }
-
-    /**
-     * Return list length
-     * @return length of the list as an integer
-     */
-    public long length() 
-    { 
-    	return listSize; 
-    } 
-
-
-    /**
-     * Return the position of the current element
-     * @return position of current element as an integer
-     */
-    public int currPos() 
-    {
-        Node<Pair<Long, Long>> temp = head.next();
-        int i;
-        for (i=0; curr != temp; i++)
-        {
-        	temp = temp.next();
-        }
-        return i;
-    }
-    
-    /**
-     * Move down list to "pos" position
-     * @param pos (position) to move 
-     * @return boolean value based on move success
-     */
-    public boolean moveToPos(int pos) 
-    {
-        if ((pos < 0) || (pos > listSize)) 
-        {
-    	    return false;
-        }
-        curr = head.next();
-        for (int i=0; i<pos; i++) 
-        {
-        	curr = curr.next();
-        }
-        return true;
-    }
-
-    /**
-     * Return true if current position is at end of the list
-     * @return boolean value based on if the curr node is equal to the tail
-     */
-    public boolean isAtEnd() 
-    { 
-    	return curr == tail; 
-    }
-
-    /**
-     * Return current element value. Note that null gets returned if curr is at the tail
-     * @return item of the current node
-     */
-    public Pair<Long, Long> getValue() 
-    { 
-    	return curr.item(); 
-    }
-
-    /**
-     * Check if the list is empty
-     * @return true if the list is empty and false otherwise
-     */
-    public boolean isEmpty() 
-    { 
-    	return listSize == 0; 
-    }
-    
 }
-
-
-/*
-public byte[] stringToByte(String convertThis)
-    {
-    	BitSet b1;
-    	boolean mult4 = (convertThis.length() % 4) == 0;
-    	
-    	b1 = new BitSet(convertThis.length() * 2);
-    	//System.out.println(b1.length());
-    	// int length = (int) Math.ceil((double)convertThis.length() / 4.0);
-    	//byte[] result = new byte[length];
-    	
-    	// a lot more code is needed here!
-    	//int arrayIndex = 0;
-    	// check each char in the seqID and insert correct bytes into array
-    	// go for the length of the string
-    	for (int i = 0; i < convertThis.length(); i++)
-    	{
-    		char currChar = convertThis.charAt(i);
-    		if (currChar == 'A')  // 00
-    		{
-
-    		}
-    		else if (currChar == 'C')  // 01
-    		{
-    		    b1.set((2 * i) + 1);
-    		}
-    		else if (currChar == 'G')  // 10
-    		{
-    		    b1.set(2 * i);
-    		}
-    		else if (currChar == 'T')  // 11
-    		{
-    		    b1.set(2 * i);
-    		    b1.set((2 * i) + 1);
-    		}
-    	}
-    	
-    	for (int i = 0; i < b1.length(); i++)
-    	{
-    	    System.out.print(b1.get(i));
-    	}
-    	
-    	return b1.toByteArray();
-    }
-    
-    public String byteToString(byte[] convertThis, int strLength)
-    {
-    	String result = "";
-    	//System.out.println(convertThis.length);
-    	//int numOfChars = convertThis.length * 4;
-    	
-    	BitSet b1 = BitSet.valueOf(convertThis);//new BitSet(numchars * 2);
-    	
-    	// loop through length of array and convert to string
-    	byte[] tempArray = new byte[2];
-    	for (int i = 0; i < strLength; i++)
-    	{
-    		if (i <= strLength)
-    		{
-    			//b1[0] = convertThis[i * 2];
-    			//b1[1] = convertThis[i * 2 + 1];
-    			
-    			if (b1.get(i * 2) == false && b1.get(i * 2 + 1) == false)  // 00 (A)
-    			{
-    			    result += 'A';
-    			}
-    			else if (b1.get(i * 2) == false && b1.get(i * 2 + 1) == true)  // 01 (C)
-    			{
-    			    result += 'C';
-    			}
-    			else if (b1.get(i * 2) == true && b1.get(i * 2 + 1) == false)  // 10 (G)
-    			{
-    			    result += 'G';
-    			}
-    			else if (b1.get(i * 2) == true && b1.get(i * 2 + 1) == true)  // 11 (T)
-    			{
-    			    result += 'T';
-    			}
-    		}
-    	}
-    	return result;
-    }
-    
-    private Character byteToStringHelper(byte[] tempBytes)
-    {
-    	
-    	if (tempBytes[0] == (byte)0)
-    	{
-    		if (tempBytes[1] == (byte)0)
-    		{
-    			return 'A';
-    		}
-    		else
-    		{
-    			return 'C';
-    		}
-    	}
-    	else
-    	{
-    		if (tempBytes[1] == (byte)0)
-    		{
-    			return 'G';
-    		}
-    		else
-    		{
-    			return 'T';
-    		}
-    	}
-    }
- */
-
-
-// ACTIVE TESTING FOR BITSETS BELOW!!! 
-
-
-/*
-public class Main
-{
-    public static void main(String[] args)
-{
-    p parse = new p();
-    String s = "ACGTCGA";
-    
-    byte[] b = parse.stringToByte(s);
-    System.out.println(b.length);
-   
-    String n = parse.byteToString(b);
-    System.out.println(n);
-}
-}
-
-import java.util.*;
-
-public class p
-{
-    public byte[] stringToByte(String convertThis)
-    {
-    	BitSet b1;
-    	boolean mult4 = (convertThis.length() % 4) == 0;
-
-    	b1 = new BitSet(convertThis.length() * 2);
-    	System.out.println(b1.length());
-    	// int length = (int) Math.ceil((double)convertThis.length() / 4.0);
-    	//byte[] result = new byte[length];
-    	
-    	// a lot more code is needed here!
-    	//int arrayIndex = 0;
-    	// check each char in the seqID and insert correct bytes into array
-    	// go for the length of the string
-    	for (int i = 0; i < convertThis.length(); i++)
-    	{
-    		char currChar = convertThis.charAt(i);
-    		if (currChar == 'A')  // 00
-    		{
-
-    		}
-    		else if (currChar == 'C')  // 01
-    		{
-    		    b1.set((2 * i) + 1);
-    		}
-    		else if (currChar == 'G')  // 10
-    		{
-    		    b1.set(2 * i);
-    		}
-    		else if (currChar == 'T')  // 11
-    		{
-    		    b1.set(2 * i);
-    		    b1.set((2 * i) + 1);
-    		}
-    	}
-    	
-    	return b1.toByteArray();
-    }
-    
-    public String byteToString(byte[] convertThis)
-    {
-    	String result = "";
-    	int numOfChars = convertThis.length/2;
-    	
-    	// loop through length of array and convert to string
-    	byte[] tempArray = new byte[2];
-    	for (int i = 0; i < numOfChars; i++)
-    	{
-    		if (i <= numOfChars)
-    		{
-    			tempArray[0] = convertThis[i * 2];
-    			tempArray[1] = convertThis[i * 2 + 1];
-    			result += byteToStringHelper(tempArray);
-    		}
-    	}
-    	return result;
-    }
-    
-    private Character byteToStringHelper(byte[] tempBytes)
-    {
-    	
-    	if (tempBytes[0] == (byte)0)
-    	{
-    		if (tempBytes[1] == (byte)0)
-    		{
-    			return 'A';
-    		}
-    		else
-    		{
-    			return 'C';
-    		}
-    	}
-    	else
-    	{
-    		if (tempBytes[1] == (byte)0)
-    		{
-    			return 'G';
-    		}
-    		else
-    		{
-    			return 'T';
-    		}
-    	}
-    }
-}
-
-*/

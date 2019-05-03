@@ -1,3 +1,10 @@
+/**
+ * 
+ * @author Joey Destin Rodgers jdr14
+ * @author Jovany Cabrera jovanyc4
+ * @version 3.2.1
+ *
+ */
 public class DNAdbase 
 {
 
@@ -6,9 +13,13 @@ public class DNAdbase
 	 */
 	public DNAdbase() 
 	{
-		// TODO Auto-generated constructor stub
-	}
 
+	}
+    
+	/**
+	 * The main for the program
+	 * @param args is an array of Strings
+	 */
 	public static void main(String[] args) 
 	{
 		// On my honor: //
