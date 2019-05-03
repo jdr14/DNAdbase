@@ -16,13 +16,18 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
      */
     private RandomAccessFile memFile;
     
-    
+    /**
+     * listed used to keep track of free blocks
+     */
     private LinkedList<Pair<Long, Long>> freeBlocks;
 
     /**
      * Default constructor to be used for comparing the offsets later
      */
-    public MemoryManager() {}
+    public MemoryManager() 
+    {
+    	
+    }
     
     /**
      * Constructor creates 
@@ -48,7 +53,7 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
 	
 	/**
 	 * 
-	 * @return
+	 * @return the list that keeps track of the free blocks
 	 */
 	public LinkedList<Pair<Long, Long>> getList()
 	{
@@ -57,7 +62,7 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
     
 	/**
 	 * 
-	 * @param sequence of type string
+	 * @param s of type byte[]
 	 * @throws IOException
 	 */
 	public void writeToFile(byte [] s) throws IOException
@@ -68,7 +73,7 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
 	
 	/**
 	 * 
-	 * @param seqPosition
+	 * @param seqPosition of type long
 	 * @throws IOException
 	 */
 	public void fileRemove(long seqPosition) throws IOException
@@ -79,8 +84,8 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
     
 	/**
 	 * Insert "it" at current position
-	 * @param seqId
-	 * @param seq
+	 * @param seqId String : sequence ID
+	 * @param seq String : sequence
 	 * @return a pair of pairs to be placed in hashTable
 	 */
     public Pair<Pair<Long, Long>, Pair<Long, Long>> 
@@ -244,7 +249,7 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
      * 2 to 6 bits long. 
      * @param strLength Needed to ignore the potential zero fill at the end
      * of the byte array passed in
-     * @return the final conerted string built
+     * @return the final connected string built
      */
     public String byteToString(byte[] convertThis, int strLength)
     {
@@ -282,16 +287,13 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
      * Function used to check if there is space in the
      * linked list for byte array passed in
      * @param insertThis
-     * @return
+     * @return true if there is space in the free block list
      */
     private boolean spaceInList(byte[] insertThis)
     {
-    	/*
-    	 Node should have pointer to file offset position as well as 
-    	 length of empty space that hole can fill
-    	 
-    	 if (insertThis.length <= 
-    	 */
+    	
+//    	 Node should have pointer to file offset position as well as 
+//    	 length of empty space that hole can fill
     	for (int i = 0; i < freeBlocks.size(); i++)
     	{
     		if (insertThis.length <= freeBlocks.get(i).getValue())
@@ -304,7 +306,7 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
     
     /**
      * Function that places the seq/seqID into its position
-     * @param insertThis
+     * @param insertThis of type byte[]
      * @return the position in the file of the seq/seqId
      */
     private long emplaceInList(byte[] insertThis) throws IOException
@@ -356,7 +358,7 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
     /**
      * Function called for when no space in list found,
      * just put at end of file
-     * @param insertThis
+     * @param insertThis of type byte[]
      * @return the position in the file of the seq/seqId
      * @throws IOException 
      */
@@ -376,6 +378,9 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
     /**
      * Overload the comparator class for custom Pair types.  Comparing the
      * offsets of the pair objects will aid in sorting the linked list
+     * @param p1 first pair to compare
+     * @param p2 second pair to compare
+     * @return integer that signifies the difference
      */
     @Override
     public int compare(Pair<Long, Long> p1, Pair<Long, Long> p2)
@@ -385,7 +390,9 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
 
     /**
      * 
-     * @param seqToRemove
+     * @param hashEntry Pair : hash entry needed to remove
+     * @param sLength Integer : length of sequence/ sequence Id
+     * @return true of the remove was successful
      * Remove and return current element
      */
     public boolean remove (Pair<Pair<Long, Long>,
@@ -409,10 +416,6 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
     	    		+ hashEntry.getValue().getValue();
     	    
     	    // Convert the combined string length to byte length
-    	    /*
-    	     *  TODO: Review that the string length equivalent of free space
-    	     *  should be stored instead of the byte length??
-    	     */
     	    // long combinedByteLength = seqToByteLength(combinedStrLength);
     		Pair<Long, Long> combinedNode = new Pair<Long, Long>(seqIdOffset,
     				combinedStrLength);
@@ -485,8 +488,8 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
     
     /**
      * 
-     * @param s sequence or sequence ID as string
-     * @return 
+     * @param seqLength sequence or sequence ID as string
+     * @return the length of the sequence as byte[]
      */
     private Long seqToByteLength(long seqLength)
     {
@@ -502,7 +505,9 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
     
     /**
      * 
-     * @param filePosition
+     * @param filePosition long : position in file
+     * @param stringLength Integer : length of the string
+     * @return the string retrieved from the file
      */
     public String getDataFromFile(long filePosition, int stringLength)
     {
@@ -524,7 +529,9 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
     
     /**
      * 
-     * @param seqToSearch
+     * @param seqId String : sequence Id needed
+     * @param seqIdPos long : the position of the sequence Id
+     * @return true if sequence was found
      */
     public boolean search(String seqId, long seqIdPos)
     {	
@@ -537,7 +544,8 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
     
     /**
      * 
-     * @param seqPos
+     * @param seqPos long : sequence position in the file
+     * @param length Integer : length of the sequence Id
      */
     public void printSeq(long seqPos, int length)
     {

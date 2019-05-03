@@ -1,4 +1,3 @@
-
 /**
  * 
  * @author Jovany Cabrera jovanyc4
@@ -17,12 +16,12 @@ public class HashTableDna<K, V> implements HashTable<K, V>
     private Pair<Pair<Long,Long>, Pair<Long, Long>> [] hashTable;
     
     /**
-     * 
+     * hash table size
      */
     private long hashTableSize;
     
     /**
-     * 
+     * bucket size
      */
     private int bucketSize = 32;
     
@@ -76,15 +75,10 @@ public class HashTableDna<K, V> implements HashTable<K, V>
 			hashPosition = (long) adjustedHashPosition;
 		}
 		
-		//result = (String)key + ": hash slot [" + hashPosition + "]";
-		
 		return hashPosition;
 	}
 	
     /**
-     * 
-     * @param oldPos
-     * @param seqNeeded
      * Helper method handles finding an empty index within the correct bucket
      * in the hash table.
      * @param seq the sequence which the slot index will be based off of
@@ -135,6 +129,10 @@ public class HashTableDna<K, V> implements HashTable<K, V>
     	return (int)slotIndex;
     }
 
+    /**
+     * @param key of type K
+     * @return a value of type V
+     */
 	@Override
 	public V search(K key) 
 	{
@@ -158,14 +156,22 @@ public class HashTableDna<K, V> implements HashTable<K, V>
 		return (V) currHashPos;
 	}
 
+	/**
+	 * Print function
+	 * not implemented but
+	 * needed for override
+	 */
 	@Override
-	public void print() {
-		// TODO Auto-generated method stub
+	public void print() 
+	{
 		
 	}
-
-
-
+	
+	/**
+	 * @param key of type K
+	 * @param value of type V
+	 * @return value of type V
+	 */
 	@Override
 	public V remove(K key, V value) 
 	{
@@ -175,21 +181,6 @@ public class HashTableDna<K, V> implements HashTable<K, V>
 		
 		String positionString = (String) key;
 		int position = Integer.parseInt(positionString);
-//    	// get positioning using the sfold function
-//		long hashPosition = sfold((String)key, (int)hashTableSize);
-//		
-//    	// get pair at the position in hash table
-//		Pair<Pair<Long, Long>, Pair<Long, Long>> currHashPos =
-//				hashTable[(int)hashPosition];
-//		
-//    	// check if there is a pair at that position
-//    	if (currHashPos == null)
-//    	{
-//    		// case where sfold returns empty position
-//    		// sequence does not exist
-//    		System.out.println("No sequence found using sequenceID: " + (String) key);
-//    		return null;
-//    	}
     	
     	// set flag for tomb stone. Sequence ID length value will be
     	// -1 indicating that something used to be here
@@ -203,13 +194,13 @@ public class HashTableDna<K, V> implements HashTable<K, V>
 	/**
 	 * helper function to get value at specific location
 	 * @param position
-	 * @return
+	 * @return a value of type V
+	 * @throws ArrayIndexOutOfBoundsException
 	 */
 	public V get(int position) throws ArrayIndexOutOfBoundsException
 	{
 		if (position >= hashTableSize || position < 0)
 		{
-			// TODO: Unsure if printing is necessary here
 			throw new ArrayIndexOutOfBoundsException("Error: trying to access"
 					+ " index greater than hash table size");
 		}
@@ -219,7 +210,7 @@ public class HashTableDna<K, V> implements HashTable<K, V>
 	/**
 	 * Helper function to get result of sfold
 	 * @param seqId
-	 * @return
+	 * @return the sFold result of the sequence Id passed in
 	 */
 	public long getsFold(String seqId)
 	{
