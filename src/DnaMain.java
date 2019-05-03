@@ -57,7 +57,7 @@ public class DnaMain {
 		if (contains(seqId))
 		{
 			// if not, print error message and return
-			System.err.println("Sequence " + seqId + " already exists!");
+			System.out.println("Sequence " + seqId + " exists");
 			return;
 		}
 		// else continue down the code and insert into memFile
