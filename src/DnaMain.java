@@ -485,7 +485,7 @@ public class DnaMain {
     					seqToByteLength(mDna.getList().get(i).getValue());
     			System.out.println("[Block " + (i + 1) + "] Starting Byte "
     					+ "Location: " + freeNodeList.get(i).getKey() 
-    					+ ", Size " + byteLength + " bytes");
+    					+ ", Size " + (byteLength+1) + " bytes");
     		}
     	}
     }
