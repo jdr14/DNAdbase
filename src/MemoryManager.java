@@ -444,7 +444,6 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
     		// Get length of the combined string of seq Id + sequence
     	    long combinedStrLength = hashEntry.getKey().getValue() 
     	    		+ hashEntry.getValue().getValue();
-    	    System.out.println("COMBINED STRING LENGTH " + combinedStrLength);
     	    
     	    // Convert the combined string length to byte length
     	    /*
@@ -472,6 +471,9 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
     	// Uses the overloaded comparator to compare the offsets
     	Collections.sort(freeBlocks, new MemoryManager());
     	
+    	// Also ensure all adjacent free nodes are merged properly
+    	mergeAdjacentFreeNodes();
+    	
 //    	freeBlocks.add(hashEntry.getKey());
 //    	System.out.println("hash key offset = " + hashEntry.getKey().getKey());
 //    	System.out.println("hash key length = " + hashEntry.getKey().getValue());
@@ -498,6 +500,40 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
     	String seqFromFile = getDataFromFile(seqPos, (int)seqLength);
     	System.out.println(seqFromFile);
         return true;
+    }
+    
+    /**
+     * Iterates through the internal linked list and merges free space
+     * nodes that are next to each other.  The idea is that two adjacent
+     * nodes merge together to become a bigger free space node
+     */
+    private void mergeAdjacentFreeNodes()
+    {
+    	if (freeBlocks.size() <= 1)
+    	{
+    		// Merging not needed in the case of 0 or 1 node
+    		return;
+    	}
+    	
+    	//int initialListSize = freeBlocks.size();
+    	
+    	for (int i = 1; i < freeBlocks.size(); i++)
+    	{
+    		Pair<Long, Long> prevNode = freeBlocks.get(i - 1);
+    		Pair<Long, Long> currNode = freeBlocks.get(i);
+    		
+    		// Check if the offset + byte length = the next offset
+    		if (currNode.getKey() == prevNode.getKey() 
+    				+ seqToByteLength(prevNode.getValue()))
+    		{
+    			// Merge is necessary
+    			Pair<Long, Long> mergeNode = 
+    					new Pair<Long, Long>(prevNode.getKey(), 
+    							prevNode.getValue() + currNode.getValue());
+    			freeBlocks.set(i - 1, mergeNode);
+    			freeBlocks.remove(i);
+    		}
+    	}
     }
     
     /**
