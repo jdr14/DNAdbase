@@ -13,9 +13,12 @@ import student.TestCase;
 public class DnaDbaseTest extends TestCase
 {
 
+	/**
+	 * Default Constructor
+	 */
 	public DnaDbaseTest() 
 	{
-		// TODO Auto-generated constructor stub
+
 	}
 
     /**
@@ -41,6 +44,9 @@ public class DnaDbaseTest extends TestCase
         assertEquals(j, "test");
     }
     
+    /**
+     * 
+     */
     public void testMain()
     {
         // Create new print streams to temporarily redirect the out and err
@@ -128,5 +134,13 @@ public class DnaDbaseTest extends TestCase
         	System.out.println("i = " + i);
             assertEquals(output[i], expectedOutput[i]);
         } 
+    }
+    
+    /**
+     * 
+     */
+    public void testInsert()
+    {
+    	
     }
 }

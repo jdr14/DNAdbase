@@ -246,6 +246,12 @@ public class DnaMain {
 		Pair<Pair<Long, Long>, Pair<Long, Long>> hashEntry =
 				dnaHash.search(seqToRemove);
 		
+		// remove something that does not exist
+		if (hashEntry == null)
+		{
+			return;
+		}
+		
 		long seqIdFoundLength = hashEntry.getKey().getValue();
 		
 		// case where sequence is found in its correct spot
@@ -325,6 +331,12 @@ public class DnaMain {
 	{
 		Pair<Pair<Long, Long>, Pair<Long, Long>> hashEntry =
 				dnaHash.search(seqToFind);
+		
+		// search something that does not exist
+		if (hashEntry == null)
+		{
+			return;
+		}
 		
 		// case where sequence was removed
 		if (hashEntry.getKey().getValue() == -1)
