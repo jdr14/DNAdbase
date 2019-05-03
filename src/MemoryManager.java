@@ -36,6 +36,8 @@ public class MemoryManager
      */
     private RandomAccessFile memFile;
     
+    
+    private LinkedList<Pair<Long, Long>> freeBlocks;
     /**
      * Project spec declares offset should be stored as an int
      * Use this private variable to help with casting from long to int
@@ -64,6 +66,17 @@ public class MemoryManager
 		listSize = 0;
 		curr = tail = new Node();
 		head = new Node();
+		head.setNext(curr);
+		freeBlocks = new LinkedList<Pair<Long, Long>>();
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public LinkedList<Pair<Long, Long>> getList()
+	{
+		return freeBlocks;
 	}
 
     // Remove all elements and reset the linked list
@@ -338,8 +351,10 @@ public class MemoryManager
     	
 		// if correct, add entries to linked list of free spaces
 		// make sure that this is correct but it makes sense
+    	freeBlocks.add(hashEntry.getKey());
     	curr.setNext(new Node(hashEntry.getKey()));
     	curr = curr.next();
+    	freeBlocks.add(hashEntry.getValue());
     	curr.setNext(new Node(hashEntry.getValue()));
     	listSize += 2;
     	
@@ -405,8 +420,17 @@ public class MemoryManager
     	System.out.println("Sequence Found: " + seqFromFile);
     }
     
-
-    public void moveToStart() { curr = head; }  // Set curr at list start
+    /**
+     * 
+     */
+    public void moveToStart() 
+    { 
+    	curr = head.next();
+    }  // Set curr at list start
+    
+    /**
+     * 
+     */
     public void moveToEnd() { curr = tail; }  // Set curr at list end
 
     // Move curr one step left; no change if now at front
