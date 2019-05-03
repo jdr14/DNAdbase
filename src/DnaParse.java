@@ -1,7 +1,5 @@
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * Extends abstract class Parse and provides parsing functionality 
@@ -15,11 +13,6 @@ public class DnaParse extends Parse
 	/**
 	 * 
 	 */
-	private MemoryManager mManager;
-	
-	/**
-	 * 
-	 */
 	private DnaMain dMain;
     /**
      * Constructor which calls parent (Parse) constructor internally
@@ -29,7 +22,6 @@ public class DnaParse extends Parse
 			String hashFileArg, long hashTableSize, String memoryFileName) 
 	{
 		super(commandFileName);
-		mManager = new MemoryManager(memoryFileName);
 	}
     
 	/**

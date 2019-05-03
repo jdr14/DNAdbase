@@ -5,6 +5,7 @@ import java.io.*;
  * 
  * @author Jovany Cabrera jovanyc4
  * @author Joey Destin Rodgers jdr14
+ * @version 2.3.1
  *
  */
 public class DnaMain {
@@ -97,7 +98,7 @@ public class DnaMain {
 		String msg = seqId + ": hash slot [" + hashSlot + "]";
 		if (resultList.isEmpty())
 		{
-			resultList.add(new Pair(hashSlot, msg));
+			resultList.add(new Pair<Long, String>(hashSlot, msg));
 			//printResult();
 			return;
 		}
@@ -108,13 +109,13 @@ public class DnaMain {
 				long pos = resultList.get(i).getKey();
 				if (hashSlot > pos)
 				{
-					resultList.add(i, new Pair(hashSlot, msg));
+					resultList.add(i, new Pair<Long, String>(hashSlot, msg));
 					//printResult();
 					return;
 				}
 			}
 		}
-		resultList.add(new Pair(hashSlot, msg));
+		resultList.add(new Pair<Long, String>(hashSlot, msg));
 //		printResult();
 		// resultList.add((int)hashSlot, seqId + ": hash slot [" + hashSlot + "]";
 	}
@@ -260,7 +261,7 @@ public class DnaMain {
 	}
 	
 	/**
-	 * 
+	 * @param seqToRemove as a string
 	 */
 	public void remove(String seqToRemove)
 	{	
@@ -277,7 +278,7 @@ public class DnaMain {
 			// mark as tomb stone
 			long pos = dnaHash.getsFold(seqToRemove);
 			
-			Pair<Pair<Long, Long>, Pair<Long, Long>> memHandles = 
+			//Pair<Pair<Long, Long>, Pair<Long, Long>> memHandles = 
 					dnaHash.remove(Long.toString(pos), hashEntry );
 			
 			// Update the printable list of sequences
@@ -528,7 +529,7 @@ public class DnaMain {
     		{
     			byteLength = 
     					seqToByteLength(mDna.getList().get(i).getValue());
-    			System.out.println("[Block" + (i + 1) + "] Starting Byte "
+    			System.out.println("[Block " + (i + 1) + "] Starting Byte "
     					+ "Location: " + freeNodeList.get(i).getKey() 
     					+ ", Size " + byteLength + " bytes");
     		}
