@@ -19,27 +19,7 @@ public class DnaMain {
 	 * 
 	 */
 	private HashTableDna<String, 
-	    Pair<Pair<Long,Long>, Pair<Long, Long>>> dnaHash;
-	
-	/**
-	 * 
-	 */
-	private String commandFileName;
-	
-	/**
-	 * 
-	 */
-	private String hashFileName;
-	
-	/**
-	 * 
-	 */
-	private long hashTableSize;
-	
-	/**
-	 * 
-	 */
-	private String memoryFileName;
+	    Pair<Pair<Long, Long>, Pair<Long, Long>>> dnaHash;
 	
 	/**
 	 * 
@@ -53,22 +33,25 @@ public class DnaMain {
 	
 	/**
 	 * Default Constructor
+	 * @param c is the name of the command file
+	 * @param h is the name of the hash file
+	 * @param s is the size of the hash table
+	 * @param m is the name of the memory file
 	 */
 	DnaMain(String c, String h, long s, String m)
 	{
-		commandFileName = c;
-		hashFileName = h;
-		hashTableSize = s;
-		memoryFileName = m;
 		resultList = new ArrayList<Pair<Long, String>>();
 		mDna = new MemoryManager(m);
 		dnaHash = new HashTableDna<String, 
 				Pair<Pair<Long, Long>, Pair<Long, Long>>>(h, s);
 	}
 	
-	/**
-	 * 
-	 */
+    /**
+     * 
+     * @param seqId is the sequence ID being inserted
+     * @param sequence is the sequence being inserted
+     * @param seqLength is the length of the sequence
+     */
 	public void insert(String seqId, String sequence, int seqLength)
 	{
 		// check if the insertion was valid
@@ -91,7 +74,8 @@ public class DnaMain {
 		long hashSlot = dnaHash.insert(seqId, fileResult);
 		if (hashSlot < 0)
 		{
-			System.out.println("Bucket full.Sequence" + seqId + "could not be inserted");
+			System.out.println("Bucket full.Sequence" +
+		        seqId + "could not be inserted");
 			return;
 		}
 		
@@ -99,7 +83,6 @@ public class DnaMain {
 		if (resultList.isEmpty())
 		{
 			resultList.add(new Pair<Long, String>(hashSlot, msg));
-			//printResult();
 			return;
 		}
 		else
@@ -110,20 +93,18 @@ public class DnaMain {
 				if (hashSlot > pos)
 				{
 					resultList.add(i, new Pair<Long, String>(hashSlot, msg));
-					//printResult();
 					return;
 				}
 			}
 		}
+		// add pair to results list for printing later
 		resultList.add(new Pair<Long, String>(hashSlot, msg));
-//		printResult();
-		// resultList.add((int)hashSlot, seqId + ": hash slot [" + hashSlot + "]";
 	}
 	
 	
 	/**
 	 * 
-	 * @param seqId
+	 * @param seqId is the sequence Id being checked
 	 * @return true if insertion is possible
 	 */
 	public boolean contains(String seqId)
@@ -135,8 +116,6 @@ public class DnaMain {
 		{
 			return false;
 		}
-		
-		//boolean seqFound = false;
 		
 		int currHashIndex = (int)hashPosition;
 		int initialHashPos = (int)hashPosition;
@@ -159,7 +138,7 @@ public class DnaMain {
     			}
     		}
     		
-    		// Case 2: Tombstone position (has already been checked for 
+    		// Case 2: Tombstone position (has already been checked for
     		// null at this point)
     		while (dnaHash.get(currHashIndex).getKey().getValue() < 0)
     		{	
@@ -200,11 +179,11 @@ public class DnaMain {
     				// Check the actual sequence stored on disk
     				long fileOffset = memHandles.getKey().getKey();
     				
-    				String Sid = mDna.getDataFromFile(fileOffset, 
+    				String siD = mDna.getDataFromFile(fileOffset, 
     						seqId.length());
     				
     				// Equivalent seq found in hash table
-    				if (Sid.equals(seqId))
+    				if (siD.equals(seqId))
     				{
     					return true;
     				}
@@ -271,7 +250,7 @@ public class DnaMain {
 		long seqIdFoundLength = hashEntry.getKey().getValue();
 		
 		// case where sequence is found in its correct spot
-		if(mDna.search(seqToRemove, hashEntry.getKey().getKey()) && 
+		if (mDna.search(seqToRemove, hashEntry.getKey().getKey()) &&
 				(seqToRemove.length() == (int) seqIdFoundLength))
 		{
 			mDna.remove(hashEntry, seqToRemove.length());
@@ -279,7 +258,7 @@ public class DnaMain {
 			long pos = dnaHash.getsFold(seqToRemove);
 			
 			//Pair<Pair<Long, Long>, Pair<Long, Long>> memHandles = 
-					dnaHash.remove(Long.toString(pos), hashEntry );
+			dnaHash.remove(Long.toString(pos), hashEntry );
 			
 			// Update the printable list of sequences
 			updateResultList(pos);
@@ -297,7 +276,8 @@ public class DnaMain {
 			if (correctPosition == -1)
 			{
 				// throw remove error error
-				System.err.println("Sequcnce ID " + seqToRemove + " not found");
+				System.err.println("Sequcnce ID " 
+				    + seqToRemove + " not found");
 			}
 			// update hashEntry variable
 			try
@@ -306,12 +286,9 @@ public class DnaMain {
 			}
 			catch (ArrayIndexOutOfBoundsException e)
 			{
-				// TODO:  Double check that this is the best way to handle 
-				// this corner case
-				// Error with trying to access an index out of bounds
-				// of the hash table
 				System.err.println(e);
-			    System.out.println("Remove unsuccessful");
+				System.err.println("Sequcnce ID " 
+				    + seqToRemove + " not found");
 				return;
 			}
 			
@@ -322,14 +299,12 @@ public class DnaMain {
 			
 			// Remove the sequence from the printable list of sequences
 			updateResultList(correctPosition);
-			
-			// remove from hash table as well
 		}			
 	}
 	
 	/**
 	 * Remove the sequence from the printable list
-	 * @param hashPos
+	 * @param hashPos is the position in the hash table
 	 */
 	private void updateResultList(long hashPos)
 	{
@@ -345,11 +320,12 @@ public class DnaMain {
 	
 	/**
 	 * 
-	 * @param seqToFind
+	 * @param seqToFind is the sequence that needs to be found
 	 */
 	public void search(String seqToFind)
 	{
-		Pair<Pair<Long, Long>, Pair<Long, Long>> hashEntry = dnaHash.search(seqToFind);
+		Pair<Pair<Long, Long>, Pair<Long, Long>> hashEntry =
+				dnaHash.search(seqToFind);
 		
 		// case where sequence was removed
 		if (hashEntry.getKey().getValue() == -1)
@@ -360,7 +336,7 @@ public class DnaMain {
 		
 		long seqIdFoundLength = hashEntry.getKey().getValue();
 		// case where sequence is found in its correct spot
-		if(mDna.search(seqToFind, hashEntry.getKey().getKey())&& 
+		if (mDna.search(seqToFind, hashEntry.getKey().getKey())&&
 				(seqToFind.length() == (int) seqIdFoundLength))
 		{
 			// just print the sequence found at the offset
@@ -379,7 +355,8 @@ public class DnaMain {
 			if (correctPosition == -1)
 			{
 				// throw search error
-				System.err.println("Sequence ID " + seqToFind + " does not exist.");
+				System.err.println("Sequence ID " +
+				    seqToFind + " does not exist.");
 				return;
 			}
 			
@@ -394,9 +371,9 @@ public class DnaMain {
 	
 	/**
      * 
-     * @param oldPos
-     * @param seqNeeded
-     * @return
+     * @param oldPos is the old position of the seqId 
+     * @param seqNeeded is the sequence needed
+     * @return the correct position of seqNeeded
      */
     public long findCorrect(long oldPos, String seqNeeded)
     {
@@ -416,7 +393,7 @@ public class DnaMain {
     	start *= 32;
     	end *= 32;
     	
-    	while(!isFound)
+    	while (!isFound)
     	{
     		// check a new hash entry
     		oldPos += 1;
@@ -457,8 +434,8 @@ public class DnaMain {
         	// double check to see if this search function does what is expected
 //        	if (mDna.search(seqNeeded, currHashPos.getKey().getKey()))
 //        	{
-        		newPos = oldPos;
-                isFound = true;
+    		newPos = oldPos;
+            isFound = true;
 //        	}
     	}
     	
@@ -467,8 +444,8 @@ public class DnaMain {
     
     /**
      * 
-     * @param s sequence or sequence ID as string
-     * @return 
+     * @param seqLength is the length of the sequence
+     * @return the length of the sequence as a byte[]
      */
     private Long seqToByteLength(long seqLength)
     {
@@ -483,7 +460,7 @@ public class DnaMain {
     }
     
     /**
-     * 
+     * Function used for the print command
      */
     public void printResult()
     {
@@ -501,28 +478,6 @@ public class DnaMain {
     	{
     		System.out.println("Free Block List:");
     		
-    		/*
-    		int numBlocks = 1;  // There is at least one block of free space
-    		mDna.getList().getFirst();  // Move current node to head
-    		long fileOffset = mDna.getList().getFirst().getKey();
-    		
-    		long byteLength = seqToByteLength(mDna.getList().getFirst().getValue());
-    		System.out.println("Long = " + byteLength);
-    		if (mDna.getList().getFirst() == mDna.getList().getLast())  // Handle case list size is just 1
-    		{
-        		System.out.println("[Block " + numBlocks + "] Starting Byte "
-        				+ "Location: " + fileOffset + ", Size " 
-        				+ byteLength + " bytes\n");
-        		return;
-    		}
-            
-    		long prevFileOffset = fileOffset;
-    		long prevByteLength = byteLength;
-    		boolean shouldPrint = true;
-    		Pair<Long, Long> IterPair = mDna.getList().getFirst();
-    		//System.out.print("[Block ");
-    		*/
-    		
     		long byteLength;
     		LinkedList<Pair<Long, Long>> freeNodeList = mDna.getList();
     		for (int i = 0; i < freeNodeList.size(); i++)
@@ -533,51 +488,6 @@ public class DnaMain {
     					+ "Location: " + freeNodeList.get(i).getKey() 
     					+ ", Size " + byteLength + " bytes");
     		}
-    		
-    		/*
-    		while (IterPair != mDna.getList().getLast())  // Handle for arbitrary list length
-    		{
-    			if (shouldPrint)
-    			{
-    				System.out.println("[Block" + numBlocks + "] Starting Byte"
-    						+ " Location: " + prevFileOffset + ", Size " 
-    						+ prevByteLength + " bytes");
-    			}
-    			
-//    			System.out.print("[Block ");
-    			IterPair = mDna.getList().get(numBlocks);  // Index to the next node
-    			fileOffset = IterPair.getKey();
-    			byteLength = seqToByteLength(IterPair.getValue());
-    			//byteLength = (IterPair.getValue() / 4) + 1;
-    			
-    			// The next amount of free space is a part of the same block
-    			if (prevFileOffset + prevByteLength == fileOffset)
-    			{
-    				byteLength += prevByteLength;
-    				fileOffset = prevFileOffset;
-    			}
-    			else
-    			{
-
-    				
-    				// Start tracking a new block of free space
-    				numBlocks++;
-    				//System.out.print("\n[Block " + numBlocks + "] Starting "
-    				//	+ "Byte Location: " + fileOffset);
-    			}
-    			
-    			// Remember current offset and byte length for next iteration
-    			prevFileOffset = fileOffset;
-    			prevByteLength = byteLength;
-    		}
-    		
-    		if (IterPair == mDna.getList().getLast())  // Handle case list size is just 1
-    		{
-    			fileOffset = IterPair.getKey();
-    			//byteLength = (IterPair.getValue() / 4) + 1;
-    			byteLength = seqToByteLength(IterPair.getValue());
-    		}
-    	   */
     	}
     }
 }
