@@ -10,13 +10,12 @@ import java.util.*;
  */
 public class DnaParse extends Parse
 {
-	/**
-	 * 
-	 */
-	private DnaMain dMain;
     /**
      * Constructor which calls parent (Parse) constructor internally
-     * @param fileName (file name of a file that exists passed in as a string)
+     * @param commandFileName (file name of a file that exists passed in as a string)
+     * @param hashFileArg String is the hash File Name
+     * @param hashTableSize long is the hash Table Size
+     * @param memoryFileName String is the memory file name
      */
 	public DnaParse(String commandFileName, 
 			String hashFileArg, long hashTableSize, String memoryFileName) 
@@ -26,12 +25,13 @@ public class DnaParse extends Parse
     
 	/**
 	 * Method to handle the parsing and functionality execution as read in by
-	 * the command fileexample input
+	 * the command file example input
 	 * @return true on success
+	 * @param d type DnaMain used to run the program
 	 */
 	public Boolean parseMain(DnaMain d)
 	{
-		dMain = d;
+		DnaMain dMain = d;
 		File commandFile = new File(this.getFileName());
 		
         // Try/Catch block to account for case if file is not found

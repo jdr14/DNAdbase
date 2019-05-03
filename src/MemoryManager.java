@@ -1,5 +1,4 @@
 import java.io.*;
-import java.nio.ByteBuffer;
 import java.util.*;
 
 /**
@@ -12,11 +11,6 @@ import java.util.*;
 public class MemoryManager implements Comparator<Pair<Long, Long>>
 {
 
-    /**
-     * variable to track the size of the linked list
-     */
-    private long listSize;
-    
     /**
      * File which the memory manager will be tracking
      */
@@ -49,7 +43,6 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
 		}
 		
 		// Initialize the linked list size as well as head, current, and tail
-		listSize = 0;
 		freeBlocks = new LinkedList<Pair<Long, Long>>();
 	}
 	
@@ -427,14 +420,14 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
     		// Add the combined free space node to the linked list
     		freeBlocks.add(combinedNode);
     		
-    		listSize++;  // Increment list size accordingly
+//    		listSize++;  // Increment list size accordingly
     	}
     	else
     	{
     		// Otherwise, add both free space nodes as 2 seperate entities
     		freeBlocks.add(hashEntry.getKey());
     		freeBlocks.add(hashEntry.getValue());
-    		listSize += 2;
+//    		listSize += 2;
     	}
     	
     	// make sure the list stays sorted in ascending order
@@ -443,18 +436,6 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
     	
     	// Also ensure all adjacent free nodes are merged properly
     	mergeAdjacentFreeNodes();
-    	
-//    	freeBlocks.add(hashEntry.getKey());
-    	//System.out.println("hash key offset = " + hashEntry.getKey().getKey());
-    	//System.out.println("hash key length = " + hashEntry.getKey().getValue());
-//    	curr.setNext(new Node(hashEntry.getKey()));
-//    	curr = curr.next();
-    	
-//    	freeBlocks.add(hashEntry.getValue());
-    	//System.out.println("hash value offset = " + hashEntry.getValue().getKey());
-    	//System.out.println("hash value length = " + hashEntry.getValue().getValue());
-//    	curr.setNext(new Node(hashEntry.getValue()));
-//    	listSize += 2;
     	
     	// print out sequence
     	long seqPos1 = hashEntry.getKey().getKey();

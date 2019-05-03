@@ -9,7 +9,7 @@ public class DNAdbase
 {
 
 	/**
-	 * 
+	 * Default constructor
 	 */
 	public DNAdbase() 
 	{
