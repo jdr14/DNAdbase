@@ -26,12 +26,13 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
      */
     public MemoryManager() 
     {
-    	
+    	// Initialize the linked list size as well as head, current, and tail
+		freeBlocks = new LinkedList<Pair<Long, Long>>();
     }
     
     /**
      * Constructor creates 
-     * @param hashFileName
+     * @param memoryFileName String : name of memory file
      */
 	public MemoryManager(String memoryFileName) 
 	{
@@ -262,19 +263,19 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
     	{
     		if (i <= strLength)
     		{
-    			if (b1.get(i * 2) == false && b1.get(i * 2 + 1) == false)
+    			if (!b1.get(i * 2) && !b1.get(i * 2 + 1))
     			{
     			    result += 'A';  // 00 (A)
     			}
-    			else if (b1.get(i * 2) == false && b1.get(i * 2 + 1) == true)
+    			else if (!b1.get(i * 2) && b1.get(i * 2 + 1))
     			{
     			    result += 'C';  // 01 (C)
     			}
-    			else if (b1.get(i * 2) == true && b1.get(i * 2 + 1) == false)
+    			else if (b1.get(i * 2) && !b1.get(i * 2 + 1))
     			{
     			    result += 'G';  // 10 (G)
     			}
-    			else if (b1.get(i * 2) == true && b1.get(i * 2 + 1) == true)
+    			else if (b1.get(i * 2) && b1.get(i * 2 + 1))
     			{
     			    result += 'T';  // 11 (T)
     			}
@@ -395,7 +396,7 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
      * @return true of the remove was successful
      * Remove and return current element
      */
-    public boolean remove (Pair<Pair<Long, Long>,
+    public boolean remove(Pair<Pair<Long, Long>,
     		Pair<Long, Long>> hashEntry, int sLength) 
     {
     	

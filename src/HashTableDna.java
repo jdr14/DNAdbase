@@ -13,7 +13,7 @@ public class HashTableDna<K, V> implements HashTable<K, V>
      * M1 should be the handle to sequence ID (offset and length)
      * M2 should be the handle to the actual sequence (offset and length)
      */
-    private Pair<Pair<Long,Long>, Pair<Long, Long>> [] hashTable;
+    private Pair<Pair<Long, Long>, Pair<Long, Long>> [] hashTable;
     
     /**
      * hash table size
@@ -25,7 +25,7 @@ public class HashTableDna<K, V> implements HashTable<K, V>
      */
     private int bucketSize = 32;
     
-	/**
+    /**
 	 * Default Constructor
 	 * @param h String is the hash file name
 	 * @param s long is the hash file size
@@ -164,7 +164,7 @@ public class HashTableDna<K, V> implements HashTable<K, V>
 	@Override
 	public void print() 
 	{
-		
+		hashTable.toString();
 	}
 	
 	/**
@@ -193,7 +193,7 @@ public class HashTableDna<K, V> implements HashTable<K, V>
 	
 	/**
 	 * helper function to get value at specific location
-	 * @param position
+	 * @param position Integer : position in hash table
 	 * @return a value of type V
 	 * @throws ArrayIndexOutOfBoundsException
 	 */
@@ -209,7 +209,7 @@ public class HashTableDna<K, V> implements HashTable<K, V>
 	
 	/**
 	 * Helper function to get result of sfold
-	 * @param seqId
+	 * @param seqId String : sequence Id needed
 	 * @return the sFold result of the sequence Id passed in
 	 */
 	public long getsFold(String seqId)
@@ -221,25 +221,25 @@ public class HashTableDna<K, V> implements HashTable<K, V>
 	 * Hashing function to compute the index (slot) of the hash table where
 	 * the memory handles are to be stored.
 	 * @param s of type string, seqID to be placed/looked-up
-	 * @param M of type integer, size of the hash table
+	 * @param m of type integer, size of the hash table
 	 * @return slot index as a long
 	 */
-	private long sfold(String s, int M) 
+	private long sfold(String s, int m) 
 	{
 		int intLength = s.length() / 4;
 		long sum = 0;
 		for (int j = 0; j < intLength; j++) 
 		{
-		    char c[] = s.substring(j * 4, (j * 4) + 4).toCharArray();
+		    char[] c = s.substring(j * 4, (j * 4) + 4).toCharArray();
 		    long mult = 1;
 		    for (int k = 0; k < c.length; k++) 
 		    {
 		        sum += c[k] * mult;
 		        mult *= 256;
 		    }
-		}// move function to hash
+		} // move function to hash
 
-		char c[] = s.substring(intLength * 4).toCharArray();
+		char[] c = s.substring(intLength * 4).toCharArray();
 	    long mult = 1;
 		for (int k = 0; k < c.length; k++) 
 		{
@@ -248,7 +248,7 @@ public class HashTableDna<K, V> implements HashTable<K, V>
         }
 
 		sum = (sum * sum) >> 8;
-		return(Math.abs(sum) % M);
+		return (Math.abs(sum) % m);
 	}
 	
 }

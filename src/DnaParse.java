@@ -12,7 +12,8 @@ public class DnaParse extends Parse
 {
     /**
      * Constructor which calls parent (Parse) constructor internally
-     * @param commandFileName (file name of a file that exists passed in as a string)
+     * @param commandFileName 
+     * (file name of a file that exists passed in as a string)
      * @param hashFileArg String is the hash File Name
      * @param hashTableSize long is the hash Table Size
      * @param memoryFileName String is the memory file name

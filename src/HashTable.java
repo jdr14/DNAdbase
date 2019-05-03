@@ -20,7 +20,7 @@ public interface HashTable<K, V> {
 	/**
 	 * 
 	 * @param key is the K being used
-	 * @param value is the V being used
+	 * @param vlaue is the V being used
 	 * @return V is a value type
 	 */
 	public V remove(K key, V vlaue);

@@ -6,16 +6,7 @@
  *
  */
 public class DNAdbase 
-{
-
-	/**
-	 * Default constructor
-	 */
-	public DNAdbase() 
-	{
-
-	}
-    
+{   
 	/**
 	 * The main for the program
 	 * @param args is an array of Strings

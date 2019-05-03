@@ -347,7 +347,7 @@ public class DnaMain {
 		
 		long seqIdFoundLength = hashEntry.getKey().getValue();
 		// case where sequence is found in its correct spot
-		if (mDna.search(seqToFind, hashEntry.getKey().getKey())&&
+		if (mDna.search(seqToFind, hashEntry.getKey().getKey()) && 
 				(seqToFind.length() == (int) seqIdFoundLength))
 		{
 			// just print the sequence found at the offset
@@ -495,9 +495,9 @@ public class DnaMain {
     		{
     			byteLength = 
     					seqToByteLength(mDna.getList().get(i).getValue());
-    			System.out.println("[Block " + (i + 1) + "] Starting Byte "
-    					+ "Location: " + freeNodeList.get(i).getKey() 
-    					+ ", Size " + (byteLength+1) + " bytes");
+    			System.out.println("[Block " + (i + 1) + "] Starting Byte " +
+    					"Location: " + freeNodeList.get(i).getKey() +
+    					", Size " + (byteLength + 1) + " bytes");
     		}
     	}
     }

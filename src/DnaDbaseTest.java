@@ -13,14 +13,6 @@ import student.TestCase;
 public class DnaDbaseTest extends TestCase
 {
 
-	/**
-	 * Default Constructor
-	 */
-	public DnaDbaseTest() 
-	{
-
-	}
-
     /**
      * test function for pair
      */
@@ -139,8 +131,8 @@ public class DnaDbaseTest extends TestCase
     /**
      * 
      */
-    public void testInsert()
-    {
-    	
-    }
+//    public void testInsert()
+//    {
+//    	
+//    }
 }
