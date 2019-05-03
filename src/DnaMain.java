@@ -499,12 +499,14 @@ public class DnaMain {
     	else
     	{
     		System.out.println("Free Block List:");
-    		int numBlocks = 1;  // There is at least one block of free space
     		
+    		/*
+    		int numBlocks = 1;  // There is at least one block of free space
     		mDna.getList().getFirst();  // Move current node to head
     		long fileOffset = mDna.getList().getFirst().getKey();
+    		
     		long byteLength = seqToByteLength(mDna.getList().getFirst().getValue());
-
+    		System.out.println("Long = " + byteLength);
     		if (mDna.getList().getFirst() == mDna.getList().getLast())  // Handle case list size is just 1
     		{
         		System.out.println("[Block " + numBlocks + "] Starting Byte "
@@ -515,15 +517,37 @@ public class DnaMain {
             
     		long prevFileOffset = fileOffset;
     		long prevByteLength = byteLength;
+    		boolean shouldPrint = true;
     		Pair<Long, Long> IterPair = mDna.getList().getFirst();
     		//System.out.print("[Block ");
+    		*/
     		
+    		long byteLength;
+    		LinkedList<Pair<Long, Long>> freeNodeList = mDna.getList();
+    		for (int i = 0; i < freeNodeList.size(); i++)
+    		{
+    			byteLength = 
+    					seqToByteLength(mDna.getList().get(i).getValue());
+    			System.out.println("[Block" + (i + 1) + "] Starting Byte "
+    					+ "Location: " + freeNodeList.get(i).getKey() 
+    					+ ", Size " + byteLength + " bytes");
+    		}
+    		
+    		/*
     		while (IterPair != mDna.getList().getLast())  // Handle for arbitrary list length
     		{
+    			if (shouldPrint)
+    			{
+    				System.out.println("[Block" + numBlocks + "] Starting Byte"
+    						+ " Location: " + prevFileOffset + ", Size " 
+    						+ prevByteLength + " bytes");
+    			}
+    			
 //    			System.out.print("[Block ");
     			IterPair = mDna.getList().get(numBlocks);  // Index to the next node
     			fileOffset = IterPair.getKey();
-    			byteLength = (IterPair.getValue() / 4) + 1;
+    			byteLength = seqToByteLength(IterPair.getValue());
+    			//byteLength = (IterPair.getValue() / 4) + 1;
     			
     			// The next amount of free space is a part of the same block
     			if (prevFileOffset + prevByteLength == fileOffset)
@@ -533,9 +557,7 @@ public class DnaMain {
     			}
     			else
     			{
-    				System.out.println("[Block" + numBlocks + "] Starting Byte"
-    						+ " Location: " + prevFileOffset + ", Size " 
-    						+ prevByteLength + " bytes");
+
     				
     				// Start tracking a new block of free space
     				numBlocks++;
@@ -551,8 +573,10 @@ public class DnaMain {
     		if (IterPair == mDna.getList().getLast())  // Handle case list size is just 1
     		{
     			fileOffset = IterPair.getKey();
-    			byteLength = (IterPair.getValue() / 4) + 1;
+    			//byteLength = (IterPair.getValue() / 4) + 1;
+    			byteLength = seqToByteLength(IterPair.getValue());
     		}
+    	   */
     	}
     }
 }
