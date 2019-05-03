@@ -1,12 +1,11 @@
-import java.util.ArrayList;
 
 /**
  * 
  * @author Jovany Cabrera jovanyc4
  * @author Joey Destin Rodgers jdr14
  * @version 3.2.1
- * @param <K>
- * @param <V>
+ * @param <K> is the key
+ * @param <V> is the Value
  */
 public class HashTableDna<K, V> implements HashTable<K, V> 
 {
@@ -20,11 +19,6 @@ public class HashTableDna<K, V> implements HashTable<K, V>
     /**
      * 
      */
-    private String hashFileName;
-    
-    /**
-     * 
-     */
     private long hashTableSize;
     
     /**
@@ -34,10 +28,11 @@ public class HashTableDna<K, V> implements HashTable<K, V>
     
 	/**
 	 * Default Constructor
+	 * @param h String is the hash file name
+	 * @param s long is the hash file size
 	 */
 	public HashTableDna(String h, long s)
 	{
-		hashFileName = h;
 		hashTableSize = s;
 		// probably need to change this
 		hashTable = new Pair[(int) hashTableSize];
@@ -47,11 +42,11 @@ public class HashTableDna<K, V> implements HashTable<K, V>
 	 * Overrides the interface provided by the HashTable.java file
 	 * @param key : Should be the sequence ID as (as string)
 	 * @param value : Should be the actual sequence (as string)
+	 * @return long : position in hash table
 	 */
 	@Override
 	public Long insert(K key, V value)
 	{
-		String result;
 		// Get positioning using the sfold function
 		long hashPosition = sfold((String)key, (int)hashTableSize);
 		
