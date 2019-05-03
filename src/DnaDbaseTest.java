@@ -53,7 +53,7 @@ public class DnaDbaseTest extends TestCase
         System.setOut(oStream);
         System.setErr(eStream);
         
-        String[] args = new String[1];
+        String[] args = new String[4];
         args[0] = "command_file.txt";
         args[1] = "hash_table.txt";
         args[2] = "64";
@@ -62,8 +62,8 @@ public class DnaDbaseTest extends TestCase
         DNAdbase d = new DNAdbase();
         d.main(args);
         
-        String output = out.toString();
-        String expectedOutput = "Sequence IDs:\n" + 
+        String[] output = out.toString().split("\\n");
+        String actualOutput = "Sequence IDs:\n" + 
         		"AAAAA: hash slot [6]\n" + 
         		"Free Block List: none\n" + 
         		"Sequence IDs:\n" + 
@@ -120,6 +120,13 @@ public class DnaDbaseTest extends TestCase
         		"[Block 1] Starting Byte Location: 0, Size 25 bytes\n" + 
         		"SequenceID AAAAA not found\n" + 
         		"Sequence Found: CCTTTTCCCCGGGGAAAACCCCGGGGTTTTAAAATTTT\n";
+        String[] expectedOutput = actualOutput.split("\\n");
         
+        // Test that all the output lines are as expected
+        for (int i = 0; (i < expectedOutput.length && i < output.length); i++)
+        {
+        	System.out.println("i = " + i);
+            assertEquals(output[i], expectedOutput[i]);
+        } 
     }
 }
