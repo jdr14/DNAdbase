@@ -98,8 +98,6 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
     	
     	// Values used to complete result later in code
     	Pair<Long, Long> bigKey;
-    	Pair<Long, Long> bigValue;
-    	// Values used to complete result later in code
     	
     	// start manipulation of sequenceId string to sequenceId byte[]
     	//---------------------------------------------------------
@@ -115,11 +113,7 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
     	// thus bitSet does not recognize it and we have to edit
     	// the byte[] arrayofId
     	if (!checkArraySize(arrayofId, seqId.length()))
-    	{
-//    		System.err.println("Enter the bad case for seqId");
-//    		System.err.println("seqId: " + seqId + " length of byte[]: " + arrayofId.length);
-//    		System.out.println("arraySize: " + arraySize + " neededArraySize: " + neededArraySize);
-    		
+    	{	
             // customized function to return rounded up version of div(4)
     		int neededArraySize = divBy4(seqId.length());
     		// size which the original array needs to be expanded by
@@ -148,6 +142,9 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
     	}
     	//---------------------------------------------------------
     	// end manipulation of sequenceId string to sequenceId byte[]
+    	
+    	// Values used to complete result later in code
+    	Pair<Long, Long> bigValue;
     	
     	// start manipulation of sequence string to sequence byte[]
     	//---------------------------------------------------------
@@ -182,7 +179,7 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
 					arrayofSeq.length, extendBytes.length);
 			
 			// function call using the newly created array
-			bigValue = insertSeqId(newarrayofSeq, seq.length());
+			bigValue = insertSeq(newarrayofSeq, seq.length());
     	}
     	else
     	{
@@ -193,6 +190,8 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
     	//---------------------------------------------------------
     	// end manipulation of sequence string to sequence byte[]
 
+    	System.out.println("bigKey.key: " + bigKey.getKey() + " bigKey.value: " + bigKey.getValue());
+    	System.out.println("bigValue.key: " + bigValue.getKey() + " bigValue.value: " + bigValue.getValue());
     	// set result to have the correct values calculated
     	result.setKey(bigKey);
     	result.setValue(bigValue);
@@ -302,6 +301,11 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
     	}
     }
     
+    /**
+     * 
+     * @param argOne of type integer
+     * @return the integer from the result of a division by 4
+     */
     private int divBy4(int argOne)
     {
     	if (argOne % 4 == 0)

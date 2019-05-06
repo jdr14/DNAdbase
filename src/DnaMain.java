@@ -64,8 +64,7 @@ public class DnaMain {
 		
 		
 		// create a value from the results of writing to memory file
-		Pair<Pair<Long, Long>, Pair<Long, Long>> fileResult = 
-				mDna.insert(seqId, sequence);
+		Pair<Pair<Long, Long>, Pair<Long, Long>> fileResult = mDna.insert(seqId, sequence);
 		
 		
 		// use sequenceId and result from memory insert to create
@@ -256,24 +255,24 @@ public class DnaMain {
     	}  // End master while
 	}  // End contains
 	
-	/**
-	 * Helper function for the contains method
-	 * @param currHashIndex
-	 * @param startOfBucket
-	 * @param endOfBucket
-	 */
-	private void incrementPosWithinBucket(int currHashPos,
-			int startOfBucket, int endOfBucket)
-	{
-		// 1) increment the hash index
-		currHashPos++;
-		
-		// 2) Check for null position
-		if (currHashPos == endOfBucket)
-		{
-			currHashPos = startOfBucket;
-		}
-	}
+//	/**
+//	 * Helper function for the contains method
+//	 * @param currHashIndex
+//	 * @param startOfBucket
+//	 * @param endOfBucket
+//	 */
+//	private void incrementPosWithinBucket(int currHashPos,
+//			int startOfBucket, int endOfBucket)
+//	{
+//		// 1) increment the hash index
+//		currHashPos++;
+//		
+//		// 2) Check for null position
+//		if (currHashPos == endOfBucket)
+//		{
+//			currHashPos = startOfBucket;
+//		}
+//	}
 	
 	/**
 	 * @param seqToRemove as a string
