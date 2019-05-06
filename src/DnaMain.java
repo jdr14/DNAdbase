@@ -57,7 +57,7 @@ public class DnaMain {
 		if (contains(seqId))
 		{
 			// if not, print error message and return
-			System.out.println("Sequence " + seqId + " exists");
+			System.out.println("SequenceID " + seqId + " exists");
 			return;
 		}
 		// else continue down the code and insert into memFile
@@ -73,8 +73,8 @@ public class DnaMain {
 		long hashSlot = dnaHash.insert(seqId, fileResult);
 		if (hashSlot < 0)
 		{
-			System.out.println("Bucket full.Sequence" +
-		        seqId + "could not be inserted");
+			System.out.println("Bucket full. Sequence " +
+		        seqId + " could not be inserted");
 			return;
 		}
 		
@@ -118,6 +118,7 @@ public class DnaMain {
 		
 		int currHashIndex = (int)hashPosition;
 		int initialHashPos = (int)hashPosition;
+//		currHashIndex += 1;
 		
     	int startIndex = ((int)hashPosition / bucketSize) * bucketSize;  
     	int endIndex = (((int)hashPosition / bucketSize) + 1) * bucketSize;
@@ -129,7 +130,15 @@ public class DnaMain {
     		// Case 1: Null position
     		while (dnaHash.get(currHashIndex) == null)  // Null Handler
     		{
-    			incrementPosWithinBucket(currHashIndex, startIndex, endIndex);
+//    			incrementPosWithinBucket(currHashIndex, startIndex, endIndex);
+    			// 1) increment the hash index
+    			currHashIndex += 1;
+    			
+    			// 2) Check for null position
+    			if (currHashIndex == endIndex)
+    			{
+    				currHashIndex = startIndex;
+    			}
     			
     			if (currHashIndex == initialHashPos)
     			{
@@ -141,7 +150,14 @@ public class DnaMain {
     		// null at this point)
     		while (dnaHash.get(currHashIndex).getKey().getValue() < 0)
     		{	
-    			incrementPosWithinBucket(currHashIndex, startIndex, endIndex);
+//    			incrementPosWithinBucket(currHashIndex, startIndex, endIndex);
+    			currHashIndex += 1;
+    			
+    			// 2) Check for null position
+    			if (currHashIndex == endIndex)
+    			{
+    				currHashIndex = startIndex;
+    			}
     			
     			// Case where all tombstones were found in the bucket
     			if (currHashIndex == initialHashPos)
@@ -159,7 +175,14 @@ public class DnaMain {
     		// Check Null again 
     		while (dnaHash.get(currHashIndex) == null)  // Null Handler
     		{
-    			incrementPosWithinBucket(currHashIndex, startIndex, endIndex);
+//    			incrementPosWithinBucket(currHashIndex, startIndex, endIndex);
+    			currHashIndex += 1;
+    			
+    			// 2) Check for null position
+    			if (currHashIndex == endIndex)
+    			{
+    				currHashIndex = startIndex;
+    			}
     			
     			if (currHashIndex == initialHashPos)
     			{
@@ -187,8 +210,15 @@ public class DnaMain {
     					return true;
     				}
     				
-    				incrementPosWithinBucket(currHashIndex, startIndex, 
-    						endIndex);
+//    				incrementPosWithinBucket(currHashIndex, startIndex, 
+//    						endIndex);
+        			currHashIndex += 1;
+        			
+        			// 2) Check for null position
+        			if (currHashIndex == endIndex)
+        			{
+        				currHashIndex = startIndex;
+        			}
     				
     				if (currHashIndex == initialHashPos)
     				{
@@ -202,8 +232,15 @@ public class DnaMain {
     			}
     			else
     			{
-    				incrementPosWithinBucket(currHashIndex, startIndex, 
-    						endIndex);
+//    				incrementPosWithinBucket(currHashIndex, startIndex, 
+//    						endIndex);
+        			currHashIndex += 1;
+        			
+        			// 2) Check for null position
+        			if (currHashIndex == endIndex)
+        			{
+        				currHashIndex = startIndex;
+        			}
     				
     				if (currHashIndex == initialHashPos)
     				{
@@ -281,8 +318,9 @@ public class DnaMain {
 			if (correctPosition == -1)
 			{
 				// throw remove error error
-				System.err.println("Sequcnce ID " 
+				System.out.println("Sequcnce ID " 
 				    + seqToRemove + " not found");
+				return;
 			}
 			// update hashEntry variable
 			try
@@ -291,8 +329,8 @@ public class DnaMain {
 			}
 			catch (ArrayIndexOutOfBoundsException e)
 			{
-				System.err.println(e);
-				System.err.println("Sequcnce ID " 
+//				System.err.println(e);
+				System.out.println("Sequcnce ID " 
 				    + seqToRemove + " not found");
 				return;
 			}
@@ -366,7 +404,7 @@ public class DnaMain {
 			if (correctPosition == -1)
 			{
 				// throw search error
-				System.err.println("Sequence ID " +
+				System.out.println("Sequence ID " +
 				    seqToFind + " does not exist.");
 				return;
 			}

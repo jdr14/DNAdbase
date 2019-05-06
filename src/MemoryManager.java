@@ -96,8 +96,13 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
     	Pair<Pair<Long, Long>, Pair<Long, Long>> result =
     			new Pair<Pair<Long, Long>, Pair<Long, Long>>();
     	
-    	// convert both seqId and seq into byte arrays in
-    	// accordance with the project sheet
+    	// Values used to complete result later in code
+    	Pair<Long, Long> bigKey;
+    	Pair<Long, Long> bigValue;
+    	// Values used to complete result later in code
+    	
+    	// start manipulation of sequenceId string to sequenceId byte[]
+    	//---------------------------------------------------------
     	byte[] arrayofId = stringToByte(seqId);
     	
     	// case where seqId is 'AAAA' or 'AAAAAAAA'
@@ -105,6 +110,47 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
     	{
     		arrayofId = new byte[seqId.length() / 4];
     	}
+    	
+    	// check for cases where the end of the seqId is AAA+
+    	// thus bitSet does not recognize it and we have to edit
+    	// the byte[] arrayofId
+    	if (!checkArraySize(arrayofId, seqId.length()))
+    	{
+//    		System.err.println("Enter the bad case for seqId");
+//    		System.err.println("seqId: " + seqId + " length of byte[]: " + arrayofId.length);
+//    		System.out.println("arraySize: " + arraySize + " neededArraySize: " + neededArraySize);
+    		
+            // customized function to return rounded up version of div(4)
+    		int neededArraySize = divBy4(seqId.length());
+    		// size which the original array needs to be expanded by
+        	int extendArraySize = neededArraySize - arrayofId.length;
+        	// creation of array that will be used to append
+    		byte[] extendBytes = new byte[extendArraySize];
+    		// creation of the array that will hold the final result
+    		// arrayofID + extendBytes = newarrayofId
+        	byte[] newarrayofId = new byte[arrayofId.length +
+        	                               extendBytes.length];
+        	// next two lines set the content of the final array
+			System.arraycopy(arrayofId, 0, newarrayofId, 0,
+					arrayofId.length);
+			System.arraycopy(extendBytes, 0, newarrayofId,
+					arrayofId.length, extendBytes.length);
+			
+			// function call that will return the pair used as
+			// the key in the final pair
+			bigKey = insertSeqId(newarrayofId, seqId.length());
+    	}
+    	else
+    	{
+        	// creation of the first entry in the pair to be returned
+        	// second parameter might have to be length of string
+    		bigKey = insertSeqId(arrayofId, seqId.length());
+    	}
+    	//---------------------------------------------------------
+    	// end manipulation of sequenceId string to sequenceId byte[]
+    	
+    	// start manipulation of sequence string to sequence byte[]
+    	//---------------------------------------------------------
     	byte[] arrayofSeq = stringToByte(seq);
     	
     	// case where seq is 'AAAA' or 'AAAAAAAA'
@@ -113,19 +159,65 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
     		arrayofSeq = new byte[seq.length() / 4];
     	}
     	
+    	// check for cases where the end of the sequence ends with AAA+
+    	// thus bitSet does not recognize it and we have to edit
+    	// the byte[] arrayofSeq
+    	if (!checkArraySize(arrayofSeq, seq.length()))
+    	{
+            // customized function to return rounded up version of div(4)
+    		int neededArraySize = divBy4(seq.length());
+    		// size that the array needs to be extended
+        	int extendArraySize = neededArraySize - arrayofSeq.length;
+        	// creation of array that will be used for expansion
+    		byte[] extendBytes = new byte[extendArraySize];
+    		// creation of array that will now be used
+        	byte[] newarrayofSeq = new byte[arrayofSeq.length +
+        	                                extendBytes.length];
+        	// these lines copy the content from the two arrays to
+        	// the final array. Thus appending the values from
+        	// extendBytes to arrayofSeq
+			System.arraycopy(arrayofSeq, 0, newarrayofSeq, 0,
+					arrayofSeq.length);
+			System.arraycopy(extendBytes, 0, newarrayofSeq,
+					arrayofSeq.length, extendBytes.length);
+			
+			// function call using the newly created array
+			bigValue = insertSeqId(newarrayofSeq, seq.length());
+    	}
+    	else
+    	{
+        	// creation of the second entry in pair to be returned
+        	// second parameter might have to be length of string 
+    		bigValue = insertSeq(arrayofSeq, seq.length());
+    	}
+    	//---------------------------------------------------------
+    	// end manipulation of sequence string to sequence byte[]
+
+    	// set result to have the correct values calculated
+    	result.setKey(bigKey);
+    	result.setValue(bigValue);
+    	
+    	return result;
+    }
+    
+    /**
+     * 
+     * @param arrayofId of type byte[]
+     * @param seqIdLength of type integer
+     * @return a pair of the results
+     */
+    private Pair<Long, Long> insertSeqId(byte[] arrayofId, int seqIdLength)
+    {
     	// variable used to save position of seqId in file
     	long posOfseqId = 0;
-    	// variable used to save position of seq in file
-    	long posOfSeq = 0;
-    	
-        // case where space was found in list for the seqID
+    	// case where space was found in list for the seqID
     	// parameter of this function might be string
     	if (spaceInList(arrayofId))
     	{
     		// if space available, place in list and save position
     		try 
     		{
-    			posOfseqId = emplaceInList(arrayofSeq);
+    			posOfseqId = emplaceInList(arrayofId);
     		}
     		catch (IOException e)
     		{
@@ -145,12 +237,21 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
 				e.printStackTrace();
 			}
     	}
-        
-    	// creation of the first entry in the pair to be returned
-    	// second parameter might have to be length of string
-    	Pair<Long, Long> bigKey = 
-    			new Pair<Long, Long>(posOfseqId, (long)seqId.length());
     	
+    	return new Pair<Long, Long>(posOfseqId, (long)seqIdLength);
+    }
+    
+    /**
+     * 
+     * @param arrayofSeq of type byte[]
+     * @param seqLength of type integer
+     * @return the pair with the results
+     */
+    private Pair<Long, Long> insertSeq(byte[] arrayofSeq, int seqLength)
+    {
+    	// variable used to save position of seq in file
+    	long posOfSeq = 0;
+
     	// case where space was found in list for the seq
     	// parameter of this function might be string
     	if (spaceInList(arrayofSeq))
@@ -178,16 +279,39 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
 				e.printStackTrace();
 			}
     	}
-    	// creation of the second entry in pair to be returned
-    	// second parameter might have to be length of string
-    	Pair<Long, Long> bigValue = 
-    			new Pair<Long, Long>(posOfSeq, (long)seq.length());
     	
-    	// set result to have the correct values calculated
-    	result.setKey(bigKey);
-    	result.setValue(bigValue);
-    	
-    	return result;
+    	return new Pair<Long, Long>(posOfSeq, (long)seqLength);
+    }
+    
+    /**
+     * 
+     * @param arrayToCheck is the array to check
+     * @param stringLength is the string length
+     * @return true if the array is the correct length
+     */
+    private boolean checkArraySize(byte[] arrayToCheck, int stringLength)
+    {
+    	// case where string length is a multiple of four
+    	if (stringLength % 4 == 0)
+    	{
+    		return arrayToCheck.length == (stringLength / 4);
+    	}
+    	else // case where string length is not a multiple of 4
+    	{
+    		return arrayToCheck.length == ((stringLength / 4) + 1);
+    	}
+    }
+    
+    private int divBy4(int argOne)
+    {
+    	if (argOne % 4 == 0)
+    	{
+    		return argOne / 4;
+    	}
+    	else
+    	{
+    		return (argOne / 4) + 1;
+    	}
     }
     
     /**
