@@ -302,6 +302,11 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
         }
     }
     
+    /**
+     * 
+     * @param argOne of type integer
+     * @return the integer from the result of a division by 4
+     */
     private int divBy4(int argOne)
     {
         if (argOne % 4 == 0)

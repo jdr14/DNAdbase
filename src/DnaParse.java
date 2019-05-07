@@ -87,6 +87,7 @@ public class DnaParse extends Parse
                             listedLine.get(0).equalsIgnoreCase("print"))
                     {
                         dMain.printResult();
+                        System.out.println("\\n");
                     }
                 }
             }

@@ -73,7 +73,7 @@ public class DnaMain {
         long hashSlot = dnaHash.insert(seqId, fileResult);
         if (hashSlot < 0)
         {
-            System.out.println("Bucket full. Sequence " +
+            System.out.println("Bucket full.Sequence " +
                 seqId + " could not be inserted");
             return;
         }
