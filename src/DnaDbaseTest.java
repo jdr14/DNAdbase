@@ -62,68 +62,68 @@ public class DnaDbaseTest extends TestCase
         
         String[] output = out.toString().split("\\n");
         String actualOutput = "Sequence IDs:\n" + 
-        		"AAAAA: hash slot [6]\n" + 
-        		"Free Block List: none\n" + 
-        		"Sequence IDs:\n" + 
-        		"AAAAA: hash slot [6]\n" + 
-        		"AAAA: hash slot [18]\n" + 
-        		"Free Block List: none\n" + 
-        		"Sequence IDs:\n" + 
-        		"AAAAA: hash slot [6]\n" + 
-        		"AAAA: hash slot [18]\n" + 
-        		"AAA: hash slot [19]\n" + 
-        		"Free Block List: none\n" + 
-        		"Sequence IDs:\n" + 
-        		"TTTTTTTTTTAAAAACCCA: hash slot [0]\n" + 
-        		"AAAAA: hash slot [6]\n" + 
-        		"AAAA: hash slot [18]\n" + 
-        		"AAA: hash slot [19]\n" + 
-        		"Free Block List: none\n" + 
-        		"Sequence IDs:\n" + 
-        		"TTTTTTTTTTAAAAACCCA: hash slot [0]\n" + 
-        		"AAAAA: hash slot [6]\n" + 
-        		"AAAA: hash slot [18]\n" + 
-        		"AAA: hash slot [19]\n" + 
-        		"TCATATCTATCCAAAAAAAA: hash slot [62]\n" + 
-        		"Free Block List: none\n" + 
-        		"Sequence IDs:\n" + 
-        		"TTTTTTTTTTAAAAACCCA: hash slot [0]\n" + 
-        		"AAAAA: hash slot [6]\n" + 
-        		"AAAA: hash slot [18]\n" + 
-        		"AAA: hash slot [19]\n" + 
-        		"TCATATCTATCCAAAAAAAA: hash slot [62]\n" + 
-        		"TCATATCTATCCAAAAAAA: hash slot [63]\n" + 
-        		"Free Block List: none\n" + 
-        		"Sequence IDs:\n" + 
-        		"TTTTTTTTTTAAAAACCCA: hash slot [0]\n" + 
-        		"AAAAA: hash slot [6]\n" + 
-        		"AAAA: hash slot [18]\n" + 
-        		"AAA: hash slot [19]\n" + 
-        		"TCATATCTATCCAAAAAA: hash slot [32]\n" + 
-        		"TCATATCTATCCAAAAAAAA: hash slot [62]\n" + 
-        		"TCATATCTATCCAAAAAAA: hash slot [63]\n" + 
-        		"Free Block List: none\n" + 
-        		"Sequence Removed AAAAA:\n" + 
-        		"AAAATTTTCCCCGGGGAAAACCCCGGGGTTTTAAAATTTT\n" + 
-        		"Sequence Removed AAA:\n" + 
-        		"AAAA\n" + 
-        		"Sequence Removed AAAA:\n" + 
-        		"AAAATTTTCCCCGGGGAAAACCCCGGGGTTTTAAAATTTT\n" + 
-        		"Sequence IDs:\n" + 
-        		"TTTTTTTTTTAAAAACCCA: hash slot [0]\n" + 
-        		"TCATATCTATCCAAAAAA: hash slot [32]\n" + 
-        		"TCATATCTATCCAAAAAAAA: hash slot [62]\n" + 
-        		"TCATATCTATCCAAAAAAA: hash slot [63]\n" + 
-        		"Free Block List:\n" + 
-        		"[Block 1] Starting Byte Location: 0, Size 25 bytes\n" + 
-        		"SequenceID AAAAA not found\n" + 
-        		"Sequence Found: CCTTTTCCCCGGGGAAAACCCCGGGGTTTTAAAATTTT\n";
+                "AAAAA: hash slot [6]\n" + 
+                "Free Block List: none\n" + 
+                "Sequence IDs:\n" + 
+                "AAAAA: hash slot [6]\n" + 
+                "AAAA: hash slot [18]\n" + 
+                "Free Block List: none\n" + 
+                "Sequence IDs:\n" + 
+                "AAAAA: hash slot [6]\n" + 
+                "AAAA: hash slot [18]\n" + 
+                "AAA: hash slot [19]\n" + 
+                "Free Block List: none\n" + 
+                "Sequence IDs:\n" + 
+                "TTTTTTTTTTAAAAACCCA: hash slot [0]\n" + 
+                "AAAAA: hash slot [6]\n" + 
+                "AAAA: hash slot [18]\n" + 
+                "AAA: hash slot [19]\n" + 
+                "Free Block List: none\n" + 
+                "Sequence IDs:\n" + 
+                "TTTTTTTTTTAAAAACCCA: hash slot [0]\n" + 
+                "AAAAA: hash slot [6]\n" + 
+                "AAAA: hash slot [18]\n" + 
+                "AAA: hash slot [19]\n" + 
+                "TCATATCTATCCAAAAAAAA: hash slot [62]\n" + 
+                "Free Block List: none\n" + 
+                "Sequence IDs:\n" + 
+                "TTTTTTTTTTAAAAACCCA: hash slot [0]\n" + 
+                "AAAAA: hash slot [6]\n" + 
+                "AAAA: hash slot [18]\n" + 
+                "AAA: hash slot [19]\n" + 
+                "TCATATCTATCCAAAAAAAA: hash slot [62]\n" + 
+                "TCATATCTATCCAAAAAAA: hash slot [63]\n" + 
+                "Free Block List: none\n" + 
+                "Sequence IDs:\n" + 
+                "TTTTTTTTTTAAAAACCCA: hash slot [0]\n" + 
+                "AAAAA: hash slot [6]\n" + 
+                "AAAA: hash slot [18]\n" + 
+                "AAA: hash slot [19]\n" + 
+                "TCATATCTATCCAAAAAA: hash slot [32]\n" + 
+                "TCATATCTATCCAAAAAAAA: hash slot [62]\n" + 
+                "TCATATCTATCCAAAAAAA: hash slot [63]\n" + 
+                "Free Block List: none\n" + 
+                "Sequence Removed AAAAA:\n" + 
+                "AAAATTTTCCCCGGGGAAAACCCCGGGGTTTTAAAATTTT\n" + 
+                "Sequence Removed AAA:\n" + 
+                "AAAA\n" + 
+                "Sequence Removed AAAA:\n" + 
+                "AAAATTTTCCCCGGGGAAAACCCCGGGGTTTTAAAATTTT\n" + 
+                "Sequence IDs:\n" + 
+                "TTTTTTTTTTAAAAACCCA: hash slot [0]\n" + 
+                "TCATATCTATCCAAAAAA: hash slot [32]\n" + 
+                "TCATATCTATCCAAAAAAAA: hash slot [62]\n" + 
+                "TCATATCTATCCAAAAAAA: hash slot [63]\n" + 
+                "Free Block List:\n" + 
+                "[Block 1] Starting Byte Location: 0, Size 25 bytes\n" + 
+                "SequenceID AAAAA not found\n" + 
+                "Sequence Found: CCTTTTCCCCGGGGAAAACCCCGGGGTTTTAAAATTTT\n";
         String[] expectedOutput = actualOutput.split("\\n");
         
         // Test that all the output lines are as expected
         for (int i = 0; (i < expectedOutput.length && i < output.length); i++)
         {
-        	System.out.println("i = " + i);
+            System.out.println("i = " + i);
             assertEquals(output[i], expectedOutput[i]);
         } 
     }
@@ -133,6 +133,6 @@ public class DnaDbaseTest extends TestCase
      */
 //    public void testInsert()
 //    {
-//    	
+//      
 //    }
 }

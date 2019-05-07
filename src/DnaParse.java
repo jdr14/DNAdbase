@@ -18,23 +18,23 @@ public class DnaParse extends Parse
      * @param hashTableSize long is the hash Table Size
      * @param memoryFileName String is the memory file name
      */
-	public DnaParse(String commandFileName, 
-			String hashFileArg, long hashTableSize, String memoryFileName) 
-	{
-		super(commandFileName);
-	}
+    public DnaParse(String commandFileName, 
+            String hashFileArg, long hashTableSize, String memoryFileName) 
+    {
+        super(commandFileName);
+    }
     
-	/**
-	 * Method to handle the parsing and functionality execution as read in by
-	 * the command file example input
-	 * @return true on success
-	 * @param d type DnaMain used to run the program
-	 */
-	public Boolean parseMain(DnaMain d)
-	{
-		DnaMain dMain = d;
-		File commandFile = new File(this.getFileName());
-		
+    /**
+     * Method to handle the parsing and functionality execution as read in by
+     * the command file example input
+     * @return true on success
+     * @param d type DnaMain used to run the program
+     */
+    public Boolean parseMain(DnaMain d)
+    {
+        DnaMain dMain = d;
+        File commandFile = new File(this.getFileName());
+        
         // Try/Catch block to account for case if file is not found
         try
         {
@@ -44,7 +44,7 @@ public class DnaParse extends Parse
             while (inFileStream.hasNextLine())
             {
                 // currentLine is defined to be the next line of the file
-            	// with the leading and trailing whitespace eliminated
+                // with the leading and trailing whitespace eliminated
                 String currentLine = inFileStream.nextLine().trim();
                 if (!lineIsEmpty(currentLine))
                 {
@@ -52,41 +52,41 @@ public class DnaParse extends Parse
                     
                     // Case insert
                     if (listedLine.size() == 3 && 
-                    		listedLine.get(0).equalsIgnoreCase("insert"))
+                            listedLine.get(0).equalsIgnoreCase("insert"))
                     {
-                       	String seqId = listedLine.get(1);
-                        	
-                       	// Project 4 instructions specified not to worry 
-                       	// about accounting for syntax errors, so it is 
-                       	// safe to get the next line which is the sequence
-                       	long sequenceLength = 
-                    			Long.parseLong(listedLine.get(2));
+                        String seqId = listedLine.get(1);
+                            
+                        // Project 4 instructions specified not to worry 
+                        // about accounting for syntax errors, so it is 
+                        // safe to get the next line which is the sequence
+                        long sequenceLength = 
+                                Long.parseLong(listedLine.get(2));
                         List<String> nextLineAsList = 
-                            		lineAsList(inFileStream.nextLine().trim());
-                       	String sequence = nextLineAsList.get(0); 
+                                    lineAsList(inFileStream.nextLine().trim());
+                        String sequence = nextLineAsList.get(0); 
                         
-                       	// Off-load work to helper method
-                       	dMain.insert(seqId, sequence, (int) sequenceLength);
-                       	//handleInsert(seqId, sequence, sequenceLength);
+                        // Off-load work to helper method
+                        dMain.insert(seqId, sequence, (int) sequenceLength);
+                        //handleInsert(seqId, sequence, sequenceLength);
                     }
                     // Case remove
                     else if (listedLine.size() == 2 && 
-                    		    listedLine.get(0).equalsIgnoreCase("remove"))
+                                listedLine.get(0).equalsIgnoreCase("remove"))
                     {
                         //parsedList.add(new 
                           //      Pair<String, String>(listedLine.get(0), ""));
-                    	// new implementation below, old implementation is above
-                    	dMain.remove(listedLine.get(1));
+                        // new implementation below, old implementation is above
+                        dMain.remove(listedLine.get(1));
                     }
                     else if (listedLine.size() == 2 && 
-                		    listedLine.get(0).equalsIgnoreCase("search"))
+                            listedLine.get(0).equalsIgnoreCase("search"))
                     {
-                    	dMain.search(listedLine.get(1));
+                        dMain.search(listedLine.get(1));
                     }
                     else if (listedLine.size() == 1 && 
-                    		listedLine.get(0).equalsIgnoreCase("print"))
+                            listedLine.get(0).equalsIgnoreCase("print"))
                     {
-                    	dMain.printResult();
+                        dMain.printResult();
                     }
                 }
             }
@@ -101,6 +101,6 @@ public class DnaParse extends Parse
             err.printStackTrace();
         }
         return true;  // successful run of parse
-	}  // End Parse main
-	
+    }  // End Parse main
+    
 }
