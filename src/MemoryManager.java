@@ -190,8 +190,8 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
     	//---------------------------------------------------------
     	// end manipulation of sequence string to sequence byte[]
 
-    	System.out.println("bigKey.key: " + bigKey.getKey() + " bigKey.value: " + bigKey.getValue());
-    	System.out.println("bigValue.key: " + bigValue.getKey() + " bigValue.value: " + bigValue.getValue());
+//    	System.out.println("bigKey.key: " + bigKey.getKey() + " bigKey.value: " + bigKey.getValue());
+//    	System.out.println("bigValue.key: " + bigValue.getKey() + " bigValue.value: " + bigValue.getValue());
     	// set result to have the correct values calculated
     	result.setKey(bigKey);
     	result.setValue(bigValue);
@@ -496,7 +496,7 @@ public class MemoryManager implements Comparator<Pair<Long, Long>>
     	// Get the pointer to file offset whenever its at the end of file
 		long posInFile = memFile.getFilePointer();
 		
-		//System.out.println("DEBUG: insertThis length = " + insertThis.length);
+//		System.out.println("DEBUG: insertThis length = " + insertThis.length);
 		
 		// Write the sequence ID to the file
 		writeToFile(insertThis);
